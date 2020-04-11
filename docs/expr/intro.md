@@ -11,15 +11,15 @@ We explain what this means below.
 
 ## Contents
 
-Regex (defined [here](link)).
+Regex (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/impl.py)).
 
-Built-in aliases (defined [here](link)):
+Built-in aliases (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/alias.py)):
 ```
 ```
 
 ## Composition
 
-Set and Seq (defined [here](link)).
+Set and Seq (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/impl.py)).
 
 Operators:
 ```
@@ -33,7 +33,7 @@ Also works nicely with strings (converted to `Regex`).
 
 ## Multiplicity
 
-Allow a given token to be matched multiple times (defined [here](link)).
+Allow a given token to be matched multiple times (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/multiplicity.py)).
 ```
 '1'     =>  [ 1 ]
 '2?'    =>  [ 0, 2 ]
