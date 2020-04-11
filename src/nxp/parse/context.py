@@ -31,24 +31,24 @@ class Context:
         logging.debug('[Context] Initialized (%d scopes).',len(self._scope))
 
     def _reset(self):
-        self._stack = RElement('main')
+        self._node = RElement('main')
         self._hist = []
         self._rule = None
         return self
 
     # properties
     @property 
-    def root(self): return self._stack.ancestor(-1)
+    def root(self): return self._node.ancestor(-1)
     @property 
-    def depth(self): return self._stack.depth
+    def depth(self): return self._node.depth
     @property
-    def scope(self): return self._scope[ self._stack.name ]
+    def scope(self): return self._scope[ self._node.name ]
     @property
-    def scopename(self): return self._stack.name
+    def scopename(self): return self._node.name
     @property
     def history(self): return self._hist
     @property 
-    def stacktrace(self): return self._stack.stacktrace()
+    def stacktrace(self): return self._node.stacktrace()
 
     # proxy to event hub
     def publish( self, name, *args, **kwargs ):
@@ -64,7 +64,7 @@ class Context:
 
     def match(self,cur):
         scope = self.scope
-        stack = self._stack 
+        node = self._node 
         pos = cur.pos 
         logging.debug('[Context] Matching cursor at position: %s', pos)
 
@@ -78,7 +78,7 @@ class Context:
                 # record all matches in history
                 self._hist.append(m)
 
-                logging.info('[Context] Match #%d (scope "%s", rule %d, rule ID %d).', len(self._hist), stack.name, idx, rule._id)
+                logging.info('[Context] Match #%d (scope "%s", rule %d, rule ID %d).', len(self._hist), node.name, idx, rule._id)
 
                 self.publish( 'match', match=m, scope=scope, rule=rule, idx=idx )
 
@@ -88,7 +88,7 @@ class Context:
 
         # raise error if no rule was match in strict parsing
         if scope.strict:
-            msg = 'No matching rule (strict parsing, scope "%s").' % stack.name
+            msg = 'No matching rule (strict parsing, scope "%s").' % node.name
             logging.error(msg)
             cur.error(msg, exc=ParseError)
         
@@ -98,12 +98,12 @@ class Context:
     def save(self,match):
         assert self._rule is not None, RuntimeError('Method save() cannot be called outside of match().')
         self.publish( 'save', match=match )
-        return self._stack.add_match(match)
+        return self._node.add_match(match)
 
 
     # proxy to scope variables
     def _ancestor(self,level):
-        return self._stack.ancestor(level)
+        return self._node.ancestor(level)
 
     def get( self, name, level=0 ):
         return self._ancestor(level).get(name)
@@ -132,20 +132,20 @@ class Context:
 
     def open( self, name ):
         assert name in self._scope, KeyError('Scope not found: "%s"' % name)
-        self._stack = self._stack.add_child(name)
-        self.publish( 'open', scope=self._stack )
+        self._node = self._node.add_child(name)
+        self.publish( 'open', scope=self._node )
         return self
 
     def close( self, n=1 ):
         assert self.depth >= n, RuntimeError('Cannot close main scope.')
-        self.publish( 'close', scope=self._stack )
-        self._stack = self._stack.ancestor(n)
+        self.publish( 'close', scope=self._node )
+        self._node = self._node.ancestor(n)
         return self
 
     def swap( self, name ):
         assert self.depth >= 1, RuntimeError('Cannot swap main scope.')
-        self.publish( 'swap', scope=self._stack, target=name )
-        self._stack.name = name
+        self.publish( 'swap', scope=self._node, target=name )
+        self._node.name = name
         return self
 
     def next( self, name ):

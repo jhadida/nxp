@@ -8,7 +8,7 @@ It allows users to do two things:
 - Define text patterns by combining Python objects, instead of writing complicated regular expressions.
 - Define and parse complex languages, with a simple dictionary!
 
-Can it be that simple, you ask? <br>
+Can it be that simple, you ask? <br/>
 Don't take my word for it; check out the example below, and see for yourself. :blush:
 
 ## Example: simple LaTeX-like language
