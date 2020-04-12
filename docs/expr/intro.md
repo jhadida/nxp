@@ -1,20 +1,35 @@
 
 # Expressions
 
-The building blocks of expressions in NXP are `Token` objects. 
+The building blocks of expressions in NXP are `Token` objects (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/base.py)). 
 As a user, you are unlikely to interact with them directly, but it is useful to understand couple of things about them:
 
 - Each token is either about **contents** (text pattern itself) or **composition** (structure of a given pattern).
 - Each token has its own **multiplicity**.
 
-We explain what this means below.
+Detailed explanations below.
 
 ## Contents
 
-Regex (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/impl.py)).
+The main contents token is the `Regex` class, which stores a regular expression pattern. 
+
+_Wait, didn't you say we were avoiding complicated regex?_
+
+I did, but regex are very good to describe small, simple patterns. They _can_ also be used to define more complicated ones, but this is where it usually starts to hurt; and this is where NXP enters the picture.
 
 Built-in aliases (defined [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/alias.py)):
 ```
+Lit
+Chars
+White
+Word
+NumInt
+NumFloat
+NumHex
+Num
+Bool
+Link
+Email
 ```
 
 ## Composition

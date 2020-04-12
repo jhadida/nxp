@@ -12,8 +12,7 @@
 *.swp
 *~
 tmp*
-_tmp*
-_
+temp*
 
 ## Compiled files
 *.o
@@ -27,9 +26,17 @@ _
 ## Application-specific
 node_modules
 __pycache__
-.ipynb_checkpoints
 .vscode
 .ipynb*
+
+
+## Distribution
+.Python
+build
+dist
+sdist
+*.egg
+*.egg-info
 
 ## Data files
 *.mat
