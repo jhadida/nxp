@@ -3,8 +3,8 @@
 
 The two main tasks in NXP are:
 
-- **Matching** text patterns defined using Python objects called _tokens_ (more on this below); the output in that case is one or several match objects with certain properties (e.g. the location of the match).
-- **Parsing** a file by attempting to match _rules_ organised into multiple _scopes_; the output in that case is a so-called Abstract Syntax Tree (or AST), which represents not only the different matches found, but also allows for arbitrary nesting of patterns.
+- **Matching** text patterns defined using Python objects called _tokens_ (more on this below); the output is one or several match objects with certain properties (e.g. the location of the match).
+- **Parsing** a file by attempting to match _rules_ organised into multiple _scopes_; the output is a so-called Abstract Syntax Tree (or AST), which represents not only the different matches found, but also the hierarchy between them (e.g. nested patterns).
 
 These tasks involve many components within NXP, which are described below.
 
@@ -36,32 +36,40 @@ The previous section gave an overview of the different components involved in ma
 
 ### Matching
 
-Every `Token` object defines the method `match( Cursor ) -> TElement`, which updates the location of the input cursor in case of successful matching, or else raises a `MatchError` exception.
+Every `Token` object defines the method `match( Cursor ) -> TElement`, which updates the location of the input cursor in case of successful matching, or raises a `MatchError` exception otherwise.
 
-Talk about multiplicity, combinations and aliases. More information [here](expr/intro). 
-
-Other useful methods
+As covered in more details [here](expr/intro), `Token` objects have a _multiplicity_ which constrains the number of times a given pattern is expected to appear. 
+They can also be combined with each other using binary operations:
 ```
-find( Cursor )          -> TElement (stop after first match)
-findall( Cursor )       -> [ TElement ]
-finditer( Cursor )      -> generator( TElement )
+a + b       Tokens expected in this order
+a & b       Tokens expected in any order
+a ^ b       One or the other, but not both
+a | b       One or the other, or both
+```
+
+Finally, all `Token` objects define the following methods
+```
+find( Cursor )        -> TElement       (stop after first match)
+findall( Cursor )     -> [ TElement ]   (find all matches)
+finditer( Cursor )    -> generator( TElement )
 ```
 
 ### Parsing
 
-Parsing is carried out by the `Parser` class, which defines the method `parse( Cursor ) -> RElement`. Internally, parsing relies heavily on the `Context` class, which effectively maintains the _state_ of the parser while the cursor is read. Parsers can be generated for any language defined as a dictionary, by invoking the function `nxp.make_parser()` (more information [here](parse/intro)).
+Parsing is carried out by the `Parser` class, which defines the method `parse( Cursor ) -> RElement`. Internally, parsing relies heavily on the `Context` class, which effectively maintains the _state_ of the parser while the cursor is read. 
 
 At any given time, the context is within a certain _scope_ (initially the "main" scope), and attempts to match _rules_ sequentially within that scope. 
 When a match is found, the successful rule and corresponding match are saved as an `RMatch` object, and the context returns either `True` or `False` to the parser, depending on whether a matching rule was found.
 
 Many other things happen under the hood when a matching rule is found. The `Rule` class defines the method `match( Cursor, Context ) -> RMatch`, which not only attempts to match a certain expression, but can also:
-- check pre- and post-conditions (which may invalidate an otherwise successful match of the expression);
+- check pre- and post-conditions, which may invalidate an otherwise successful match of the expression;
 - apply some post-processing to the corresponding text;
 - and invoke callback functions which may alter the state of the `Context` (e.g. transitioning to a new scope).
 
-Several function are provided for convenience in order to parse files, multline strings, or list of strings (more information [here](parse/intro)):
+Several function are provided for convenience in order to parse files, multline strings, or lists of strings:
 ```
 nxp.parse( parser, text )
 nxp.parsefile( parser, filepath )
 nxp.parselines( parser, lines )
 ```
+Parsers can be generated for any language defined as a dictionary, by invoking the function `nxp.make_parser()` (more information [here](parse/intro)).

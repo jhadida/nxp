@@ -6,14 +6,15 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nxp",
-    version="0.0.1",
+    version="0.0.2",
     author="Jonathan Hadida",
     author_email="jonathan.hadida@unknown.invalid",
     description="Natural eXpression Parsing — A Python 3 parsing library.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jhadida/nxp",
-    packages=['src/nxp'],
+    packages=setuptools.find_packages('src'),
+    package_dir={'': 'src'},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

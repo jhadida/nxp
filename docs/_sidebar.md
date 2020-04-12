@@ -1,8 +1,9 @@
 
 * Getting started
 
-  * [Overview](overview)
+  * [Installation](install)
   * [Tutorial](tutorial)
+  * [Overview](overview)
 
 * Expression
 
