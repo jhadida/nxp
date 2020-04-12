@@ -5,16 +5,18 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="nxp-jhadida",
+    name="nxp",
     version="0.0.1",
     author="Jonathan Hadida",
     author_email="jonathan.hadida@unknown.invalid",
-    description="Natural eXpression Parsing – A Python 3 parsing library.",
+    description="Natural eXpression Parsing — A Python 3 parsing library.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jhadida/nxp",
     packages=['src/nxp'],
     classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
         "Topic :: Text Processing",
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",

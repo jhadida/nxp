@@ -98,9 +98,3 @@ The output is a simple AST:
 ```
 
 > **Note:** begin/end positions are given in the format `(line,col)`, **starting at 0** (not 1).
-
-## To-do's
-
-- Documentation
-- Unit-testing
-- Better logging capabilities
