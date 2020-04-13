@@ -2,7 +2,7 @@
 import re
 import math
 import logging
-from copy import copy
+from typing import Pattern
 from .match import MatchError
 from .base import Token
 from .util import TokenSet
@@ -10,22 +10,33 @@ from .util import TokenSet
 # ------------------------------------------------------------------------
 
 class Regex(Token):
-    def __init__(self, pat, case=True):
+    def __init__(self, pat, *arg, case=True):
         super().__init__()
-        assert isinstance(pat,str), TypeError('Pattern should be a string.')
 
-        if case:
-            self._pat = re.compile( pat )
+        if isinstance(pat,str):
+            flag = 0 if case else re.I 
+            if arg: flag = arg[0] | flag 
+            self._pat = re.compile( pat, flag )
+        elif isinstance(pat,Pattern): 
+            self._pat = pat 
         else:
-            self._pat = re.compile( pat, re.I )
+            raise TypeError('Unexpected type: %s' % type(pat))
 
-        logging.debug('[Regex] Initialize with pattern: %s',self._pat.pattern)
-
-    def __str__(self):
-        return self._pat.pattern
+        logging.debug('[Regex] Initialize with pattern: %s',self.pattern)
 
     @property
-    def pat(self): return self._pat
+    def pattern(self): return self._pat.pattern
+    @property
+    def flags(self): return self._pat.flags
+
+    def __str__(self):
+        return self.pattern
+
+    # copy of regex is not implemented before Python 3.7
+    def __copy__(self):
+        return Regex( self._pat )
+    def __deepcopy__(self,memo):
+        return Regex( self._pat )
 
     def _match_once(self,cur,out):
         p = cur.pos
