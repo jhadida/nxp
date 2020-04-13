@@ -59,7 +59,7 @@ class _Buffer:
         return self._line[pos[0]][0:pos[1]]
     def after(self,pos):
         return self._line[pos[0]][pos[1]:]
-    def between(self,pos1,pos2,sep='\n'):
+    def between(self,pos1,pos2,nl='\n'):
         L1, C1 = pos1 
         L2, C2 = pos2
         L, C = L1, C1
@@ -71,7 +71,7 @@ class _Buffer:
             C = 0
         out.append(self._line[L][C:C2])
 
-        return sep.join(out)
+        return nl.join(out)
     def distance(self,pos1,pos2):
         L1, C1 = pos1
         L2, C2 = pos2
@@ -79,6 +79,30 @@ class _Buffer:
         out = []
         while L1 <= L2: 
             out.append(len(self._line[L1]))
+
+    def show_around(self,pos,width=13):
+        lnum,c = pos 
+
+        L = self._line[lnum]
+        b = max(0,c-width)
+        e = min(c+width,len(L))
+        s = L[b:e]
+        x = list(' ' * len(s))
+        x[c-b] = '^'
+        return s, ''.join(x)
+
+    def show_between(self,pos1,pos2,width=13):
+        l1,c1 = pos1 
+        l2,c2 = pos2 
+
+        assert l1==l2, NotImplementedError('Multiline version not implemented.')
+        L = self._line[l1]
+        b = max(0,c1-width)
+        e = min(c2+width,len(L))
+        s = L[b:e]
+        x = list(' ' * len(s))
+        for k in range(c1,c2): x[k-b] = '-'
+        return s, ''.join(x)
         
     def write(self,filename):
         with open(filename,'w') as fh:

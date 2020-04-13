@@ -1,7 +1,29 @@
 
 import re 
 from .ruledef import make_rule
-from nxp import Scope, Parser, ListBuffer, FileBuffer
+from nxp import Cursor, Scope, Parser, ListBuffer, FileBuffer
+
+# ------------------------------------------------------------------------
+
+def make_cursor( c, r2l=False ):
+    if isinstance(c,Cursor):
+        return c 
+    elif isinstance(c,str):
+        return ListBuffer( c.splitlines(True), r2l ).cursor()
+    else:
+        raise TypeError('Unexpected type: %s' % type(c))
+
+def match( tok, text, r2l=False ):
+    return tok.match(make_cursor(text,r2l))
+
+def find( tok, text, r2l=False ):
+    return tok.find(make_cursor(text,r2l))
+
+def findall( tok, text, r2l=False ):
+    return tok.findall(make_cursor(text,r2l))
+
+def finditer( tok, text, r2l=False ):
+    return tok.finditer(make_cursor(text,r2l))
 
 # ------------------------------------------------------------------------
 

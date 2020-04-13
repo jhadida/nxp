@@ -45,6 +45,7 @@ class Token:
     # matching
     def __call__(self,cur):
         return self.match(cur)
+        
     def match(self,cur):
         """
         Matching with multiplicity iterates over allowed ranges of 

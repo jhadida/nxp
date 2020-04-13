@@ -20,6 +20,8 @@ class Cursor:
 
     # change line or cursor position
     @property 
+    def buffer(self): return self._buf
+    @property 
     def line(self): return self._line
     @property 
     def lnum(self): return self._line.lineno
@@ -145,15 +147,9 @@ class Cursor:
     # raise exceptions
     def error(self, msg, width=13, exc=RuntimeError):
         p = self.pos
+        s,x = self._buf.show_around(p)
         p = 'line %d, col %d' % (p[0]+1, p[1]+1)
 
-        b = max(0,self._char-width)
-        e = min(self._char+width,len(self._line))
-        s = self._line[b:e]
-        
-        x = list(' ' * len(s))
-        x[self._char-b] = '^'
-        
         logging.error('[cursor] Error at L=%d, C=%d: %s', 
             self._line, self._char, msg)
-        raise exc('\n'.join([ p, '\t'+s+'..', '\t'+''.join(x), msg ]))
+        raise exc('\n'.join([ p, '\t'+s+'..', '\t'+x, msg ]))

@@ -8,6 +8,17 @@ from .impl import *
 
 # ------------------------------------------------------------------------
 
+def Rep(tok,*args):
+    return tok.__mul__(*args)
+
+def Opt(tok):
+    return tok.__mul__('1?')
+
+def Many(tok):
+    return tok.__mul__('1+')
+
+# ------------------------------------------------------------------------
+
 def Any(*args):
     return Set( args, min=1 )
 

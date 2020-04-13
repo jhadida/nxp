@@ -5,6 +5,13 @@ import nxp
 
 # pylint: disable=no-member
 
+"""
+To-do:
+- Strings converted to Regex
+- Test Set when the first item is removed from the list.
+- Test Set and Seq with nested TokenList items.
+"""
+
 # ------------------------------------------------------------------------
 
 TEST_FILE = {

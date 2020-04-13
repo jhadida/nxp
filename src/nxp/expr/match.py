@@ -67,6 +67,16 @@ class TElement:
     def isempty(self):
         return len(self._rep) == 0
 
+    def show(self,buf,width=13):
+        out = [ 'Pattern: %s' % str(self.token) ]
+        for k,m in enumerate(self._rep):
+            idx = '[%d] ' % k 
+            pfx = ' ' * len(idx)
+            s,x = buf.show_between( m.beg, m.end, width )
+            out.append( '\t' + idx + s )
+            out.append( '\t' + pfx + x )
+        return '\n'.join(out)
+
     def __len__(self):
         return len(self._rep)
     def __getitem__(self,key):

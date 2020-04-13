@@ -5,6 +5,7 @@ import logging
 from copy import copy
 from .match import MatchError
 from .base import Token
+from .util import TokenSet
 
 # ------------------------------------------------------------------------
 
@@ -93,14 +94,16 @@ class Set(_TokenList):
         self._max = val
 
     def _match_once(self,cur,out):
-        tmp = []
+        tok = TokenSet(self._tok)
         pos = cur.pos
+        tmp = []
         nm = -1
         while nm < len(tmp) < self._max:
             nm = len(tmp)
-            for tok in self._tok:
+            for it in tok:
                 try:
-                    tmp.append(tok.match(cur))
+                    tmp.append(it.tok.match(cur))
+                    tok.remove(it)
                     break
                 except MatchError:
                     pass
@@ -116,12 +119,24 @@ class Set(_TokenList):
 # ------------------------------------------------------------------------
 
 class Seq(_TokenList):
-    def __init__(self, tok=[], skip=False):
+    def __init__(self, tok=[], skip=None, maxskip=None):
         super().__init__()
         assert all( isinstance(t,Token) for t in tok ), TypeError('Sequence items should be Token objects.')
 
         self._tok = tok
-        self._skp = skip 
+
+        if skip == True or (maxskip and skip is None):
+            skip = range(len(tok))
+        if skip is None or skip == False:
+            skip = []
+        if maxskip is None:
+            maxskip = len(skip)-1
+
+        assert 0 <= maxskip <= len(skip), ValueError('Bad maxskip value.')
+        assert all([ 0 <= s < len(tok) for s in skip ]), IndexError('Skip indices out of range.')
+
+        self._skp = frozenset(skip)
+        self._msk = maxskip
         logging.debug('[Seq] Initialize with %d token(s).',len(tok))
 
     def __str__(self):
@@ -130,27 +145,16 @@ class Seq(_TokenList):
     @property
     def skip(self): return self._skp 
 
-    @skip.setter
-    def skip(self,val):
-        if val == True:
-            s = range(len(self._tok))
-        elif val == False:
-            s = []
-        elif isinstance(val,list):
-            s = val
-        else:
-            ValueError('Bad skip value.')
-
-        self._skp = set(s)
-
     def _match_once(self,cur,out):
         tmp = []
         pos = cur.pos
-        for num,tok in enumerate(self._tok):
+        skp = 0
+        for k,tok in enumerate(self._tok):
             try: 
                 tmp.append(tok.match(cur))
             except MatchError:
-                if num not in self._skp:
+                skp += 1
+                if skp > self._msk or k not in self._skp:
                     cur.pos = pos 
                     return False
         
