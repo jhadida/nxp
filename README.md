@@ -12,8 +12,8 @@ It allows users to do two things:
 - Define text patterns by combining Python objects, instead of writing complicated regular expressions.
 - Define and parse complex languages, with a simple dictionary!
 
-Can it be that simple, you ask? <br/>
-Don't take my word for it; check out the example below, and see for yourself. :blush:
+Is it really that simple? <br>
+Don't take my word for it; see for yourself with the example below, and the notebooks in the `examples/` folder. :blush:
 
 ## Example: simple LaTeX-like language
 

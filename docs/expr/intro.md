@@ -26,7 +26,7 @@ from nxp import Regex
 r = Regex( r'-?\d+' )  # match (signed) integer numbers
 ```
 
-NXP also defines many useful aliases, which you might want to use for improved clarity in your code:
+NXP also defines many useful aliases, which you might want to use in your code for improved clarity:
 ```
 Lit('Foo')      string literal (case sensitive)
 Chars('a-z')    characters in any order
@@ -35,6 +35,7 @@ Word()          letters, digits and underscore
 NumInt()        integer number
 NumFloat()      floating-point number
 NumHex()        hexadecimal number
+Num()           any of the above types of number
 Link()          hyperlink
 Email()         e-mail addresses
 ```
@@ -82,7 +83,7 @@ The `skip` argument can be used to allow items to be skipped, and `maxskip` limi
 
 ## Multiplicity
 
-The previous sections showed how to define contents tokens, and how to combine them together in order to form complex patterns to be matched. The last relevant property of `Token` objects is their _multiplicity_, which refers to the number of occurrences expected to be found (by default 1, of course).
+The previous sections showed how to define contents tokens, and how to combine them together in order to form complex patterns to be matched. The last important aspect of `Token` objects is their _multiplicity_, which refers to the number of contiguous repetitions allowed or expected to be found (by default 1, of course).
 
 Multiplicities in NXP are represented by lists of tuples ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/multi.py)):
 ```
@@ -90,7 +91,7 @@ Multiplicities in NXP are represented by lists of tuples ([source](https://githu
 ```
 where each tuple corresponds to an interval of validity for the number of repetitions of a given tokenm, with the constraint `U[i] < L[i+1]` such that no two intervals overlap.
 
-From the user's perspective, all you need to do is call the method `tok.mul(m)` which expects a string formatted as follows:
+That's not a very friendly way of specifying multiplicities though. Instead you can set `tok.mul = m` where `m` is a string formatted as follows:
 ```
 '1'     =>  [ 1 ]               exactly once
 '2?'    =>  [ 0, 2 ]            2 or none
@@ -100,9 +101,11 @@ From the user's perspective, all you need to do is call the method `tok.mul(m)` 
 '6+?'   =>  [ 0, (6,Inf) ]      6 or more, or none
 ```
 
-Note that there are also a few aliases defined for convenience, to be used as token modifiers:
+There are also a few aliases defined for convenience:
 ```
-Rep(tok,m)      =>  tok.mul(m)
-Opt(tok)        =>  tok.mul('1?')
-Many(tok)       =>  tok.mul('1+')
+Mul(tok,m)      =>  tok.mul = m
+Opt(tok)        =>  tok.mul = '1?'
+Many(tok)       =>  tok.mul = '1+'
 ```
+
+> **Note:** these functions create a new copy of the input token, instead of modifying it.

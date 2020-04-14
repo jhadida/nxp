@@ -97,6 +97,7 @@ class Token:
                 return self.match(cur)
             except:
                 cur.nextchar()
+        return None
 
     def findall(self,cur):
         logging.debug('[Token] Find all tokens at: L=%d, C=%d', *cur.pos)
@@ -106,7 +107,6 @@ class Token:
                 out.append(self.match(cur))
             except:
                 cur.nextchar()
-
         return out
 
     def finditer(self,cur):

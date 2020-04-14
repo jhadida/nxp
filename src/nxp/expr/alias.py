@@ -8,7 +8,7 @@ from .impl import *
 
 # ------------------------------------------------------------------------
 
-def Rep(tok,*args):
+def Mul(tok,*args):
     return tok.__mul__(*args)
 
 def Opt(tok):
@@ -16,6 +16,8 @@ def Opt(tok):
 
 def Many(tok):
     return tok.__mul__('1+')
+
+Rep = Mul
 
 # ------------------------------------------------------------------------
 
@@ -28,14 +30,11 @@ def All(*args):
 def Xor(*args):
     return Set( args, max=1 )
 
-def OneOf(*args):
-    return Xor(*args)
-
 def TwoOf(*args):
     return Set( args, min=2, max=2 )
 
-def Either(*args):
-    return Xor(*args)
+OneOf = Xor 
+Either = Xor
 
 # ------------------------------------------------------------------------
 

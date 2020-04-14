@@ -25,7 +25,7 @@ To give you an idea of the components involved in matching/parsing, and how they
 - [`nxp.parse`](https://github.com/jhadida/nxp/tree/master/src/nxp/parse) implements tools to define languages with simple dictionaries (similar to [Monarch](https://microsoft.github.io/monaco-editor/monarch.html)).
     - `Rule`: a `Token` to be matched, pre/post-conditions to be verified for a successful match, and post-processing / callback functions.
     - `Scope`: a list of `Rule` objects along with some parsing properties (e.g. strictness).
-    - `RMatch`: a single rule-match, containing a `TElement` object, a reference to corresponding `Rule`, and the post-processed text.
+    - `RMatch`: a single rule-match, containing a `TElement` object, a reference to the corresponding `Rule`, and the post-processed text.
     - `RElement`: a node of the output AST, associated with a scope name, and containing a mixed list of `RMatch` and nested `RElement` objects (children nodes).
     - `Context`: a dictionary of named `Scope` objects, and the active node of the AST (an `RElement` object) which represents the _state_ during parsing. This is the only _stateful_ component.
     - `Parser`: an object capable of processing an input `Cursor`. Contains a `Context` object and defines an event loop used to hook callback functions.
@@ -38,8 +38,17 @@ The previous section gave an overview of the different components involved in ma
 
 Every `Token` object defines the method `match( Cursor ) -> TElement`, which updates the location of the input cursor in case of successful matching, or raises a `MatchError` exception otherwise.
 
-As covered in more details [here](expr/intro), `Token` objects have a _multiplicity_ which constrains the number of times a given pattern is expected to appear. 
-They can also be combined with each other using binary operations:
+Several functions are provided for convenience in order to match strings:
+```
+nxp.match( token, text )     -> TElement/MatchError (beginning of text)
+nxp.find( token, text )      -> TElement/None       (stop after first match)
+nxp.findall( token, text )   -> [ TElement ]        (find all matches)
+nxp.finditer( token, text )  -> generator( TElement )
+```
+
+In terms of properties, tokens have a _multiplicity_ which constrains the number of contiguous repetitions of a given pattern. Note that this is different from the number of distinct matches returned in output; each `TElement` object may contain multiple `TMatch` items.
+
+Finally, `Token` objects can be combined with each other with binary operations, in order to form complex expressions:
 ```
 a + b       Tokens expected in this order
 a & b       Tokens expected in any order
@@ -47,19 +56,14 @@ a ^ b       One or the other, but not both
 a | b       One or the other, or both
 ```
 
-Finally, all `Token` objects define the following methods
-```
-find( Cursor )        -> TElement       (stop after first match)
-findall( Cursor )     -> [ TElement ]   (find all matches)
-finditer( Cursor )    -> generator( TElement )
-```
+> More information about matching in the [Expression section](expr/intro).
 
 ### Parsing
 
 Parsing is carried out by the `Parser` class, which defines the method `parse( Cursor ) -> RElement`. Internally, parsing relies heavily on the `Context` class, which effectively maintains the _state_ of the parser while the cursor is read. 
 
 At any given time, the context is within a certain _scope_ (initially the "main" scope), and attempts to match _rules_ sequentially within that scope. 
-When a match is found, the successful rule and corresponding match are saved as an `RMatch` object, and the context returns either `True` or `False` to the parser, depending on whether a matching rule was found.
+When a match is found, the successful rule and corresponding match are saved as an `RMatch` object, and the context returns either `True` or `False` to the parser, depending on whether a matching rule was found or not.
 
 Many other things happen under the hood when a matching rule is found. The `Rule` class defines the method `match( Cursor, Context ) -> RMatch`, which not only attempts to match a certain expression, but can also:
 - check pre- and post-conditions, which may invalidate an otherwise successful match of the expression;
@@ -68,8 +72,10 @@ Many other things happen under the hood when a matching rule is found. The `Rule
 
 Several function are provided for convenience in order to parse files, multline strings, or lists of strings:
 ```
-nxp.parse( parser, text )
-nxp.parsefile( parser, filepath )
-nxp.parselines( parser, lines )
+nxp.parse( parser, text )           -> root RElement object
+nxp.parsefile( parser, filepath )   ->      "
+nxp.parselines( parser, lines )     ->      "
 ```
-Parsers can be generated for any language defined as a dictionary, by invoking the function `nxp.make_parser()` (more information [here](parse/intro)).
+Finally, parsers can be generated for any language defined as a dictionary, by invoking the function `nxp.make_parser()`.
+
+> More information about parsing in the [Parsing section](parse/intro).
