@@ -1,5 +1,6 @@
 
 [![License: MPLv2](https://img.shields.io/badge/license-MPLv2-green)](https://choosealicense.com/licenses/mpl-2.0/)
+[![PyPI](https://img.shields.io/badge/PyPI-https%3A%2F%2Fpypi.org%2Fproject%2Fnxp%2F-orange)](https://pypi.org/project/nxp/)
 [![Documentation](https://img.shields.io/badge/docs-https%3A%2F%2Fjhadida.github.io%2Fnxp%2F-blue)](https://jhadida.github.io/nxp/)
 
 # NXP: Natural eXpression Parsing
