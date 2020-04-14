@@ -1,8 +1,8 @@
 
 import logging
-from copy import copy, deepcopy
+from copy import deepcopy
 from .match import TElement, MatchError
-from .multiplicity import mulparse
+from .multi import mulparse
 
 # ------------------------------------------------------------------------
 
@@ -33,14 +33,20 @@ class Token:
         raise NotImplementedError()
 
     # multiplicity
+    @property 
+    def mul(self):
+        return self._mul 
+    @mul.setter
     def mul(self,m):
         self._mul = mulparse(m)
-        return self
+
     def __imul__(self,m):
-        return self.mul(m)
+        self.mul = m
+        return self 
     def __mul__(self,m):
         out = deepcopy(self)
-        return out.mul(m)
+        out.mul = m 
+        return out
 
     # matching
     def __call__(self,cur):

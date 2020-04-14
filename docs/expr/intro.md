@@ -84,7 +84,7 @@ The `skip` argument can be used to allow items to be skipped, and `maxskip` limi
 
 The previous sections showed how to define contents tokens, and how to combine them together in order to form complex patterns to be matched. The last relevant property of `Token` objects is their _multiplicity_, which refers to the number of occurrences expected to be found (by default 1, of course).
 
-Multiplicities in NXP are represented by lists of tuples ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/multiplicity.py)):
+Multiplicities in NXP are represented by lists of tuples ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/multi.py)):
 ```
 [ (L1,U1), (L2,U2), ... ]
 ```
