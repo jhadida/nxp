@@ -1,7 +1,7 @@
 
-[![License: MPLv2](https://github.com/jhadida/nxp/tree/master/assets/license.svg)](https://choosealicense.com/licenses/mpl-2.0/)
-[![PyPI](https://github.com/jhadida/nxp/tree/master/assets/pypi.svg)](https://pypi.org/project/nxp/)
-[![Documentation](https://github.com/jhadida/nxp/tree/master/assets/docs.svg)](https://jhadida.github.io/nxp/)
+<a href="https://choosealicense.com/licenses/mpl-2.0/"><img src="assets/license.svg" alt="License: MPLv2" align="middle" style="margin: 0 20px"></a>
+<a href="https://pypi.org/project/nxp/"><img src="assets/pypi.svg" alt="PyPI: nxp" align="middle" style="margin: 0 20px"></a>
+<a href="https://jhadida.github.io/nxp/"><img src="assets/docs.svg" alt="Documentation" align="middle" style="margin: 0 20px"></a>
 
 # NXP: Natural eXpression Parsing
 
