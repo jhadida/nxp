@@ -8,7 +8,6 @@
 * Expression
 
   * [Intro](expr/intro)
-  * [Composition](expr/comp)
   * [Matching](expr/match)
   * [Advanced](expr/adv)
 

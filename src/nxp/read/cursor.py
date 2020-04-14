@@ -129,6 +129,9 @@ class Cursor:
         self._char = len(self._line)
         return self
 
+    def reset(self):
+        return self.goto_bof()
+
     # "real" positions
     def linepos(self): return self._char
     def filepos(self): return self._char + self._line.offset

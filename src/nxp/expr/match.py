@@ -67,7 +67,7 @@ class TElement:
     def isempty(self):
         return len(self._rep) == 0
 
-    def show(self,buf,width=13):
+    def insitu(self,buf,width=13):
         out = [ 'Pattern: %s' % str(self.token) ]
         for k,m in enumerate(self._rep):
             idx = '[%d] ' % k 

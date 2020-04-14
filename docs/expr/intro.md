@@ -7,6 +7,8 @@ As a user, you are unlikely to interact with them directly, but it is useful to 
 - Each token is either about **contents** (text pattern itself) or **composition** (structure of a given pattern).
 - Each token has its own **multiplicity**.
 
+Checkout the examples in [`examples/expressions.ipynb`](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb).
+
 ## Contents
 
 The main contents token is the `Regex` class, which stores a regular expression pattern. 
@@ -103,43 +105,4 @@ Note that there are also a few aliases defined for convenience, to be used as to
 Rep(tok,m)      =>  tok.mul(m)
 Opt(tok)        =>  tok.mul('1?')
 Many(tok)       =>  tok.mul('1+')
-```
-
-## Examples
-
-Below are a few practical examples of how to define patterns in NXP.
-
-Matching integers or floating point numbers:
-```py
-from nxp import Regex, Xor
-
-num_integer = Regex( r'-?\d+' )
-num_float = Regex( r'-?\d*\.\d+([eE][-+]?\d+)?' )
-number = Xor( num_integer, num_float )
-```
-
-Find repetitions of "chuck" in a sentence:
-```py
-from nxp import Regex, Many, make_cursor
-
-s = 'How much wood would a woodchuck chuck if a woodchuck could chuck wood?'
-c = make_cursor(s)
-p = Regex( r'chuck\s*' )
-
-for m in Many(p).finditer(c):
-    print(m.show(c.buffer))
-```
-output:
-```
-Pattern: chuck\s*
-	[0]  would a woodchuck chuck if a wo
-	                 ------             
-	[1]  a woodchuck chuck if a woodchuc
-	                 ------             
-Pattern: chuck\s*
-	[0] uck if a woodchuck could chuck w
-	                 ------             
-Pattern: chuck\s*
-	[0] dchuck could chuck wood?
-	                 ------ 
 ```
