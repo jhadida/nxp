@@ -7,7 +7,7 @@ As a user, you are unlikely to interact with them directly, but it is useful to 
 - Each token is either about **contents** (text pattern itself) or **composition** (structure of a given pattern).
 - Each token has its own **multiplicity**.
 
-Checkout the examples in [`examples/expressions.ipynb`](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb).
+You can find a notebook with commented examples in [`examples/expressions.ipynb`](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb).
 
 ## Contents
 

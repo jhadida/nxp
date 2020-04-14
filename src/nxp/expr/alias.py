@@ -61,7 +61,7 @@ def NumHex():
     return Regex( r'0[xX][0-9a-fA-F]+' )
 
 def Num():
-    return OneOf( NumInt(), NumFloat(), NumHex() )
+    return OneOf( NumFloat(), NumInt(), NumHex() )
 
 def Bool():
     return Either( Lit('True'), Lit('False') )

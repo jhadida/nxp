@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nxp",
-    version="0.0.2",
+    version="0.0.1",
     author="Jonathan Hadida",
     author_email="jonathan.hadida@unknown.invalid",
     description="Natural eXpression Parsing — A Python 3 parsing library.",
