@@ -1,0 +1,6 @@
+Inspirational quote:
+\quote{
+    Time you enjoy wasting is \it{not} wasted time.
+}
+
+Command without a body \command, or with an empty one \command{}.
