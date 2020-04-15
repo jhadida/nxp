@@ -14,7 +14,6 @@
 
   * [Intro](parse/intro)
   * [Rules](parse/rule)
-  * [Output](parse/output)
   * [Advanced](parse/adv)
 
 * Development

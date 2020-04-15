@@ -15,9 +15,9 @@ It allows users to do two things:
 Is it really that simple? <br>
 Don't take my word for it; see for yourself with the example below, and the notebooks in the `examples/` folder. :blush:
 
-## Example: simple LaTeX-like language
+## Example: LaTeX-like commands
 
-We want to parse the following file, say `foo.txt`, which contains LaTeX-like patterns `\command{ body }`:
+This is a quick example to illustrate parsing with NXP. We want to parse (very simplified) LaTeX-like patterns `\command{ body }` in the file `foo.txt`:
 ```txt
 Inspirational quote:
 \quote{
@@ -27,7 +27,7 @@ Inspirational quote:
 Command without a body \command, or with an empty one \command{}.
 ```
 
-NXP allows you to easily define a language to match such patterns:
+This is how to define a language to match such patterns in NXP:
 ```py
 import nxp
 
@@ -65,8 +65,7 @@ parser = nxp.make_parser({
 
 print(nxp.parsefile( parser, 'foo.txt' ))
 ```
-
-The output is a simple AST:
+and the output is a simple AST:
 ```
 + Scope("main"): 3 element(s)
 	[0] Scope("command"): 2 element(s)
@@ -97,5 +96,3 @@ The output is a simple AST:
 			[1] \}
 				(0) (5, 63) - (5, 64) }
 ```
-
-> **Note:** begin/end positions are given in the format `(line,col)`, **starting at 0** (not 1).

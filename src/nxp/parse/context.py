@@ -133,18 +133,18 @@ class Context:
     def open( self, name ):
         assert name in self._scope, KeyError('Scope not found: "%s"' % name)
         self._node = self._node.add_child(name)
-        self.publish( 'open', scope=self._node )
+        self.publish( 'open', node=self._node )
         return self
 
     def close( self, n=1 ):
         assert self.depth >= n, RuntimeError('Cannot close main scope.')
-        self.publish( 'close', scope=self._node )
+        self.publish( 'close', node=self._node )
         self._node = self._node.ancestor(n)
         return self
 
     def swap( self, name ):
         assert self.depth >= 1, RuntimeError('Cannot swap main scope.')
-        self.publish( 'swap', scope=self._node, target=name )
+        self.publish( 'swap', node=self._node, target=name )
         self._node.name = name
         return self
 

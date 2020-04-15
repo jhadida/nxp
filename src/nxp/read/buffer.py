@@ -16,6 +16,7 @@ class _Buffer:
         self._line = []
     
     def __len__(self): return len(self._line)
+    def __iter__(self): return iter(self._line)
     def __getitem__(self,key): return self._line[key]
 
     def _readlines(self,obj,r2l):

@@ -18,6 +18,20 @@ class Cursor:
         self._buf = buf
         self.setpos(line,char)
 
+    def reset(self):
+        return self.goto_bof()
+
+    def isvalid(self):
+        return self._char >= 0 and self._char < len(self._line)
+
+    # "real" positions
+    def linepos(self): return self._char
+    def filepos(self): return self._char + self._line.offset
+
+    # WARNING!
+    # filepos returns a character count which excludes newline characters,
+    # this cannot be used with fseek or similar methods!
+
     # change line or cursor position
     @property 
     def buffer(self): return self._buf
@@ -54,9 +68,6 @@ class Cursor:
             logging.debug('[cursor] Cannot skip %d line(s): go to EOF.',n)
             return self.goto_eof()
 
-    def isvalid(self):
-        return self._char >= 0 and self._char < len(self._line)
-
     # disallow deep copies of cursors
     def copy(self,other):
         self._buf = other._buf 
@@ -70,7 +81,6 @@ class Cursor:
     # underlying line / buffer properties
     def __len__(self): return len(self._line) - self._char
     def __getitem__(self,key): return self.line[key]
-    def text(self,p1,p2): return self._buf.between(p1,p2)
 
     # comparison with other cursors
     def __eq__(self,cur):
@@ -128,13 +138,6 @@ class Cursor:
         self._line = self._buf[-1]
         self._char = len(self._line)
         return self
-
-    def reset(self):
-        return self.goto_bof()
-
-    # "real" positions
-    def linepos(self): return self._char
-    def filepos(self): return self._char + self._line.offset
 
     # match text contents (expects compiled regex)
     def match(self,pat):

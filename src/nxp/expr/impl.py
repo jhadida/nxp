@@ -120,7 +120,7 @@ class Set(_TokenList):
                     pass
 
         if len(tmp) >= self._min:
-            txt = cur.text( pos, cur.pos )
+            txt = cur.buffer.between( pos, cur.pos )
             out.append( pos, cur.pos, tmp, txt )
             return True 
         else:
@@ -169,7 +169,7 @@ class Seq(_TokenList):
                     cur.pos = pos 
                     return False
         
-        txt = cur.text( pos, cur.pos )
+        txt = cur.buffer.between( pos, cur.pos )
         out.append( pos, cur.pos, tmp, txt )
         return True 
 
