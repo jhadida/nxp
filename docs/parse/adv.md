@@ -16,4 +16,4 @@ eol     fun()                       before nextline
 
 ## Nodes
 
-Objects of type `RElement`. List interface. Pretty-printing.
+Objects of type `RNode`. List interface. Pretty-printing.

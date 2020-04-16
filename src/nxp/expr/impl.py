@@ -59,6 +59,17 @@ class _TokenList(Token):
     def __iter__(self): return iter(self._tok)
     def __getitem__(self,key): return self._tok[key]
 
+    def _assign(self,tok):
+        ok = []
+        for k,t in enumerate(tok):
+            if isinstance(t,Token):
+                ok.append(t)
+            elif isinstance(t,str):
+                ok.append(Regex(t))
+            else:
+                raise TypeError('Item #%d is not a token.' % k)
+        self._tok = ok
+
     def prepend(self,tok):
         assert isinstance(tok,Token), TypeError('Expected a Token')
         self._tok.insert(0,tok)
@@ -79,9 +90,7 @@ class _TokenList(Token):
 class Set(_TokenList):
     def __init__(self, tok=[], min=1, max=math.inf):
         super().__init__()
-        assert all( isinstance(t,Token) for t in tok ), TypeError('Set items should be Token objects.')
-
-        self._tok = tok
+        self._assign(tok)
         self._min = min
         self._max = max
         logging.debug('[Set] Initialize with %d token(s).',len(tok))
@@ -132,9 +141,7 @@ class Set(_TokenList):
 class Seq(_TokenList):
     def __init__(self, tok=[], skip=None, maxskip=None):
         super().__init__()
-        assert all( isinstance(t,Token) for t in tok ), TypeError('Sequence items should be Token objects.')
-
-        self._tok = tok
+        self._assign(tok)
 
         if skip == True or (maxskip and skip is None):
             skip = range(len(tok))

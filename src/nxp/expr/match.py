@@ -5,7 +5,7 @@ class MatchError(Exception): pass
 
 # ------------------------------------------------------------------------
 
-class TMatch:
+class TOccur:
     __slots__ = ('beg','end','data','text')
 
     def __init__(self,b,e,d,t):
@@ -13,7 +13,7 @@ class TMatch:
         self.end = e 
         self.data = d
         self.text = t
-        logging.debug('[TMatch] New token between %s and %s.',b,e)
+        logging.debug('[TOccur] New token between %s and %s.',b,e)
 
     def isvalid(self):
         return self.end >= self.beg
@@ -25,11 +25,11 @@ class TMatch:
 
 # ------------------------------------------------------------------------
 
-class TElement:
+class TMatch:
     """
-    TElement objects contain:
+    TMatch objects contain:
     - the token being matched,
-    - and an array of TMatch objects. 
+    - and an array of TOccur objects. 
     
     Individual match can be accessed using the [] operator (starting at 
     index 0), and the number of match is obtained by calling len(). Each 
@@ -55,7 +55,7 @@ class TElement:
         return [ m.text for m in self._rep ]
 
     def append(self,beg,end,data=None,text=''):
-        self._rep.append(TMatch( beg, end, data, text ))
+        self._rep.append(TOccur( beg, end, data, text ))
         return self
     def commit(self):
         self._len = len(self._rep)

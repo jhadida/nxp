@@ -2,7 +2,7 @@
 import logging
 from itertools import count
 from .match import RMatch
-from nxp import Token, TElement, Regex
+from nxp import Token, TMatch, Regex
 
 class PreCheckError(Exception): pass
 class PostCheckError(Exception): pass
@@ -66,7 +66,7 @@ class Rule:
         # match pattern (raise error on fail)
         if self._expr is None:
             pos = cur.pos 
-            tok = TElement(None).append(pos,pos)
+            tok = TMatch(None).append(pos,pos)
         else:
             tok = self._expr.match(cur)
 
@@ -83,7 +83,6 @@ class Rule:
         txt = tok.text()
         for p in self._proc:
             txt = list(map(p,txt))
-
 
         # call functions
         out = RMatch(self,tok,txt)

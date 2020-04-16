@@ -13,7 +13,7 @@
 * Parsing
 
   * [Intro](parse/intro)
-  * [Rules](parse/rule)
+  * [Components](parse/comp)
   * [Advanced](parse/adv)
 
 * Development

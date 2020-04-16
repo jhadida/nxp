@@ -1,6 +1,6 @@
 
 import logging
-from .match import RElement, RMatch
+from .match import RNode, RMatch
 from .rule import Scope, PreCheckError, PostCheckError
 from nxp import MatchError
 
@@ -31,7 +31,7 @@ class Context:
         logging.debug('[Context] Initialized (%d scopes).',len(self._scope))
 
     def _reset(self):
-        self._node = RElement('main')
+        self._node = RNode('main')
         self._hist = []
         self._rule = None
         return self
@@ -148,7 +148,7 @@ class Context:
         self._node.name = name
         return self
 
-    def next( self, name ):
-        self.close()
+    def next( self, name, n=1 ):
+        self.close(n)
         self.open(name)
         return self

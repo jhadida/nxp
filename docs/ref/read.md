@@ -14,6 +14,11 @@ Within NXP, text contents is considered as a list of lines. Accordingly, the var
 - trailing whitespace (`line.post`);
 - remaining text (`line.text`).
 
+### Right-to-left text
+
+> Experimental, needs user feedback for improvement.
+
+
 ## Cursor and position
 
 `Cursor` objects are essentially pointers to a particular position within the `Buffer`. Positions are formatted as `(line,col)` with indices starting at 0.

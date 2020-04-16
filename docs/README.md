@@ -9,7 +9,7 @@ It allows users to do two things:
 - Define and parse complex languages, with a simple dictionary!
 
 Is it really that simple? <br>
-Don't take my word for it; see for yourself with the [examples](https://github.com/jhadida/nxp/tree/master/examples) provided. :blush:
+Don't take my word for it; see for yourself with the [examples](https://github.com/jhadida/nxp/tree/master/examples) provided!
 
 > **Links**
 > - [GitHub repository](https://github.com/jhadida/nxp)

@@ -81,7 +81,7 @@ def process( parser, callback, buffer, first=(0,0), last=None ):
         callback( transform, element )
     where 
         'transform' is a Transform object, and 
-        'element' is a RElement object.
+        'element' is a RNode object.
     """
     if last is None: last = buffer.lastpos 
     tsf = Transform( buffer, first, last )

@@ -7,7 +7,7 @@ As a user, you are unlikely to interact with them directly, but it is useful to 
 - Each token is either about **contents** (text pattern itself) or **composition** (structure of a given pattern).
 - Each token has its own **multiplicity**.
 
-You can find a notebook with commented examples in [`examples/expressions.ipynb`](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb).
+For practical use, you can find a notebook with commented examples in [`examples/expressions.ipynb`](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb).
 
 ## Contents
 
@@ -89,9 +89,9 @@ Multiplicities in NXP are represented by lists of tuples ([source](https://githu
 ```
 [ (L1,U1), (L2,U2), ... ]
 ```
-where each tuple corresponds to an interval of validity for the number of repetitions of a given tokenm, with the constraint `U[i] < L[i+1]` such that no two intervals overlap.
+where each tuple corresponds to an interval of validity for the number of repetitions, with the constraint `U[i] < L[i+1]` such that no two intervals overlap.
 
-That's not a very friendly way of specifying multiplicities though. Instead you can set `tok.mul = m` where `m` is a string formatted as follows:
+That's not a very friendly way of specifying multiplicities though. Instead you can set `tok.mul = m` where `m` is a string interpreted as follows:
 ```
 '1'     =>  [ 1 ]               exactly once
 '2?'    =>  [ 0, 2 ]            2 or none
@@ -108,4 +108,4 @@ Opt(tok)        =>  tok.mul = '1?'
 Many(tok)       =>  tok.mul = '1+'
 ```
 
-> **Note:** these functions create a new copy of the input token, instead of modifying it.
+> **Note:** these aliases create a new copy of the input token, instead of modifying it.

@@ -1,45 +1,63 @@
 
 # Matching
 
+The previous [introduction](expr/intro) to expressions within NXP presented two different types of tokens (contents and composition), and talked about token multiplicity.
+Here we expand on practical explanations of matching in NXP, and working with the output.
+
 ## Functions
 
-There are multiple functions implemented in NXP to facilitate matching ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/helper.py)):
+All `Token` objects implement the following methods:
 ```
-nxp.match( token, text )     -> TElement/MatchError (beginning of text)
-nxp.find( token, text )      -> TElement/None       (stop after first match)
-nxp.findall( token, text )   -> [ TElement ]        (find all matches)
-nxp.finditer( token, text )  -> generator( TElement )
+tok.match( cursor )         must match at the cursor's position
+tok.find( cursor )          advance cursor until a match is found
+tok.findall( cursor )       advance cursor until the end of the text
+tok.finditer( cursor )      generator implementation of findall
 ```
 
-These functions wrap arround a few simple steps which convert the input string into a `Cursor` object, and call `Token` methods:
+Note that these methods expect a `Cursor` object in input (not text), and that they may modify its position. 
+Cursors can be created from a string using `nxp.make_cursor(text)`, but to make this even easier, the following top-level functions are provided for convenience ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/helper.py)):
 ```
-tok.match( cursor )
-tok.find( cursor )
-tok.findall( cursor )
-tok.finditer( cursor )
+nxp.match( token, text )     -> TMatch/MatchError
+nxp.find( token, text )      -> TMatch/None
+nxp.findall( token, text )   -> [ TMatch ]
+nxp.finditer( token, text )  -> generator( TMatch )
 ```
 
 > More info about the cursor object [here](ref/cursor).
 
 ## Output
 
-The output of the various methods is a `TElement` object (or an array thereof):
-
-- They may contain multiple `TMatch` items, related to the multiplicity of the `Token`.
-- They only contain restricted information in order to remain lightweight. In particular no text surroundings.
-
-`TElement` object implements a list interface with random access `[]`, length, and iteration.
-
-## Pretty-printing
-
-String representation of a `TElement` object is formatted as:
+The outputs of the previous methods are (lists of) `TMatch` objects, each of which may contain multiple `TOccur` items (related to the multiplicity of the `Token`). In turn, each `TOccur` object stores information about the location and contents of the occurrence:
 ```
-[match_index] position_start - position_end text_matched
+occur.beg       postition where the occurrence begins
+occur.end               "           "          ends
+occur.text      the raw text between these positions
+occur.data      additional data depending on the Token type
 ```
-where positions are formatted as `(line,col)` (in reference to the `Buffer` object), and `match_index` refers to the multiplicity of the token.
+The positions saved within each occurrence are relative to the underlying `Buffer` object used by the input cursor. However, in order to remain lightweight, no additional information about the surrounding text is saved. 
 
-In order to place the match within the surrounding text, the `Buffer` needs to be supplied to the `TElement` object:
+In order to access each occurrence of the pattern, `TMatch` objects implement a list interface:
 ```
-print(match.insitu( cursor.buffer ))
+len(match)                  number of occurrences
+match[k]                    access each occurrence by index
+for occur in match: ...     iterate over occurrences (type TOccur)
 ```
+
+In order to show information about a particular match, you can simply `print` the corresponding object. The string representation of a match is formatted as follows:
+```
+[0] pos_begin - pos_end text_matched
+[1] pos_begin - pos_end text_matched
+...
+```
+where:
+- each line corresponds to a different occurence (should be contiguous);
+- the begin/end positions are formatted as `(line,col)` (starting at 0, not 1);
+- the text matched corresponds to the raw text between these positions.
+
+Finally, because it is sometimes useful to place each match within the surrounding text, NXP also provides a way of displaying more information with:
+```
+print( match.insitu(cursor.buffer) )
+```
+which shows the pattern being matched, the surrounding text, and the match is underlined with dashes.
+
 

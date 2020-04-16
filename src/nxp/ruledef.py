@@ -67,14 +67,14 @@ def _strict(kw,name):
 def _relax(kw,name):
     kw['call'].append( lambda c,x,m: x.relax(name) )
 
-def _open(kw,name,*args):
-    kw['call'].append( lambda c,x,m: x.open(name,*args) )
+def _open(kw,name):
+    kw['call'].append( lambda c,x,m: x.open(name) )
 
 def _close(kw,*args):
     kw['call'].append( lambda c,x,m: x.close(*args) )
 
-def _swap(kw,name,*args):
-    kw['call'].append( lambda c,x,m: x.swap(name,*args) )
+def _swap(kw,name):
+    kw['call'].append( lambda c,x,m: x.swap(name) )
 
 def _next(kw,name,*args):
     kw['call'].append( lambda c,x,m: x.next(name,*args) )
@@ -95,21 +95,21 @@ def _goto(kw,name):
 
 _argmap = {
     'error': _error, 'raise': _error, 'err': _error,
-    'replace': _replace, 'rep': _replace, 'sub': _replace,
-    'increment': _inc, 'inc': _inc, 
-    'decrement': _dec, 'dec': _dec, 
-    'define': _let, 'def': _let, 'let': _let,
-    'tag': _tag, 'label': _tag, 
-    'pre': _pre, 'check': _pre, 'chk': _pre, 
-    'post': _post, 'validate': _post, 'valid': _post,
-    'proc': _proc, 'apply': _proc, 'do': _proc,
-    'call': _call, 'cb': _call,
-    'save': _save,
     'strict': _strict, 'relax': _relax,
     'open': _open, 'push': _open,
     'close': _close, 'pop': _close,
     'swap': _swap, 'swp': _swap,
     'next': _next, 'nxt': _next,
+    'define': _let, 'def': _let, 'let': _let,
+    'increment': _inc, 'inc': _inc, 
+    'decrement': _dec, 'dec': _dec, 
+    'save': _save,
+    'tag': _tag, 'label': _tag, 
+    'pre': _pre, 'check': _pre, 'chk': _pre, 
+    'post': _post, 'validate': _post, 'valid': _post,
+    'proc': _proc, 'process': _proc, 'do': _proc,
+    'replace': _replace, 'rep': _replace, 'sub': _replace,
+    'call': _call, 'callback':_call ,'cb': _call,
     'advance': _adv, 'adv': _adv,
     'reverse': _rev, 'rev': _rev,
     'goto': _goto

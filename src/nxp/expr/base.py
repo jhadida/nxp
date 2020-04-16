@@ -1,7 +1,7 @@
 
 import logging
 from copy import deepcopy
-from .match import TElement, MatchError
+from .match import TMatch, MatchError
 from .multi import mulparse
 
 # ------------------------------------------------------------------------
@@ -16,9 +16,9 @@ class Token:
     implemented in derived classes with the method _match_once(), which:
     - returns True if there is a match, False otherwise;
     - takes a cursor in input, and updates it in case of match;
-    - takes a TElement object in input, and appends to it in case of match.
+    - takes a TMatch object in input, and appends to it in case of match.
 
-    The overall match() method takes a cursor in input, and returns a TElement
+    The overall match() method takes a cursor in input, and returns a TMatch
     object if the multiplicity constraints are satisfied, otherwise None.
     """
 
@@ -67,7 +67,7 @@ class Token:
         """
         logging.debug('[Token] Match token at: L=%d, C=%d', *cur.pos)
 
-        out = TElement(self)
+        out = TMatch(self)
         pos = cur.pos
         for rmin, rmax in self._mul:
 
@@ -86,7 +86,7 @@ class Token:
         
         cur.pos = pos
         if out.isempty(): raise MatchError()
-        assert out.isvalid(), RuntimeError('[bug] Invalid TElement object.')
+        assert out.isvalid(), RuntimeError('[bug] Invalid TMatch object.')
         return out
 
     # search

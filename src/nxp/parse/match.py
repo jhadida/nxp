@@ -8,7 +8,7 @@ class RMatch:
     RMatch objects store individual results of rule-matching.
     They contain:
       * the index of the matching rule in the corresponding Scope;
-      * the TElement object (see nxp.expr.match);
+      * the TMatch object (see nxp.expr.match);
       * the corresponding text as a list of strings, each for a
         given repetition of the Token, which may be processed by
         callbacks in the Rule definition.
@@ -33,9 +33,9 @@ class RMatch:
 
 # ------------------------------------------------------------------------
 
-class RElement:
+class RNode:
     """
-    RElement objects are designed with several aspects of the parsing in mind:
+    RNode objects are designed with several aspects of the parsing in mind:
     
     1.  They store the results of successful rule-matchings in a given
         scope during parsing. Each match is stored as a RMatch object
@@ -63,10 +63,10 @@ class RElement:
         except:
             self._depth = 0
 
-        logging.debug('[RElement] Initialized (scope "%s").',name)
+        logging.debug('[RNode] Initialized (scope "%s").',name)
 
     @property
-    def nchild(self): return sum([ isinstance(x,RElement) for x in self.data ])
+    def nchild(self): return sum([ isinstance(x,RNode) for x in self.data ])
     @property 
     def nmatch(self): return sum([ isinstance(x,RMatch) for x in self.data ])
     @property 
@@ -80,7 +80,7 @@ class RElement:
     def has_vars(self): return self.nvars > 0
     def is_empty(self): return len(self.data) == 0
 
-    def children(self): return [x for x in self.data if isinstance(x,RElement)]
+    def children(self): return [x for x in self.data if isinstance(x,RNode)]
     def matches(self): return [x for x in self.data if isinstance(x,RMatch)]
 
     # magic methods
@@ -128,11 +128,11 @@ class RElement:
     def add_match(self,match):
         assert isinstance(match,RMatch), TypeError('Unexpected type: %s', type(match))
         self.data.append(match)
-        logging.info('[RElement] Match #%d (scope "%s", rule ID %d).', len(self), self.name, match.rule._id)
+        logging.info('[RNode] Match #%d (scope "%s", rule ID %d).', len(self), self.name, match.rule._id)
         return match
 
     def add_child(self,name):
-        c = RElement(name,self)
+        c = RNode(name,self)
         self.data.append(c)
         return c
 

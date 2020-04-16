@@ -19,15 +19,15 @@ To give you an idea of the components involved in matching/parsing, and how they
 
 - [`nxp.expr`](https://github.com/jhadida/nxp/tree/master/src/nxp/expr) implements tools to define text expressions with Python objects (similar to [pyparsing](https://github.com/pyparsing/pyparsing)).
     - `Token`: an object capable of matching/searching text patterns for a given `Cursor`.
-    - `TMatch`: a single token match, with cursor begin/end positions and corresponding raw text.
-    - `TElement`: a list of `TMatch` objects for each repetition of a given `Token` (cf. [multiplicity](expr/intro?id=multiplicity)).
+    - `TOccur`: a single token match, with cursor begin/end positions and corresponding raw text.
+    - `TMatch`: a list of `TOccur` objects for each repetition of a given `Token` (cf. [multiplicity](expr/intro?id=multiplicity)).
 
 - [`nxp.parse`](https://github.com/jhadida/nxp/tree/master/src/nxp/parse) implements tools to define languages with simple dictionaries (similar to [Monarch](https://microsoft.github.io/monaco-editor/monarch.html)).
     - `Rule`: a `Token` to be matched, pre/post-conditions to be verified for a successful match, and post-processing / callback functions.
     - `Scope`: a list of `Rule` objects along with some parsing properties (e.g. strictness).
-    - `RMatch`: a single rule-match, containing a `TElement` object, a reference to the corresponding `Rule`, and the post-processed text.
-    - `RElement`: a node of the output AST, associated with a scope name, and containing a mixed list of `RMatch` and nested `RElement` objects (children nodes).
-    - `Context`: a dictionary of named `Scope` objects, and the active node of the AST (an `RElement` object) which represents the _state_ during parsing. This is the only _stateful_ component.
+    - `RMatch`: a single rule-match, containing a `TMatch` object, a reference to the corresponding `Rule`, and the post-processed text.
+    - `RNode`: a node of the output AST, associated with a scope name, and containing a mixed list of `RMatch` and nested `RNode` objects (children nodes).
+    - `Context`: a dictionary of named `Scope` objects, and the active node of the AST (an `RNode` object) which represents the _state_ during parsing. This is the only _stateful_ component.
     - `Parser`: an object capable of processing an input `Cursor`. Contains a `Context` object and defines an event loop used to hook callback functions.
 
 ## Workflow
@@ -36,17 +36,17 @@ The previous section gave an overview of the different components involved in ma
 
 ### Matching
 
-Every `Token` object defines the method `match( Cursor ) -> TElement`, which updates the location of the input cursor in case of successful matching, or raises a `MatchError` exception otherwise.
+Every `Token` object defines the method `match( Cursor ) -> TMatch`, which updates the location of the input cursor in case of successful matching, or raises a `MatchError` exception otherwise.
 
 Several functions are provided for convenience in order to match strings:
 ```
-nxp.match( token, text )     -> TElement/MatchError (beginning of text)
-nxp.find( token, text )      -> TElement/None       (stop after first match)
-nxp.findall( token, text )   -> [ TElement ]        (find all matches)
-nxp.finditer( token, text )  -> generator( TElement )
+nxp.match( token, text )     -> TMatch/MatchError (beginning of text)
+nxp.find( token, text )      -> TMatch/None       (stop after first match)
+nxp.findall( token, text )   -> [ TMatch ]        (find all matches)
+nxp.finditer( token, text )  -> generator( TMatch )
 ```
 
-In terms of properties, tokens have a _multiplicity_ which constrains the number of contiguous repetitions of a given pattern. Note that this is different from the number of distinct matches returned in output; each `TElement` object may contain multiple `TMatch` items.
+In terms of properties, tokens have a _multiplicity_ which constrains the number of contiguous repetitions of a given pattern. Note that this is different from the number of distinct matches returned in output; each `TMatch` object may contain multiple `TOccur` items.
 
 Finally, `Token` objects can be combined with each other with binary operations, in order to form complex expressions:
 ```
@@ -60,7 +60,7 @@ a | b       One or the other, or both
 
 ### Parsing
 
-Parsing is carried out by the `Parser` class, which defines the method `parse( Cursor ) -> RElement`. Internally, parsing relies heavily on the `Context` class, which effectively maintains the _state_ of the parser while the cursor is read. 
+Parsing is carried out by the `Parser` class, which defines the method `parse( Cursor ) -> RNode`. Internally, parsing relies heavily on the `Context` class, which effectively maintains the _state_ of the parser while the cursor is read. 
 
 At any given time, the context is within a certain _scope_ (initially the "main" scope), and attempts to match _rules_ sequentially within that scope. 
 When a match is found, the successful rule and corresponding match are saved as an `RMatch` object, and the context returns either `True` or `False` to the parser, depending on whether a matching rule was found or not.
@@ -72,7 +72,7 @@ Many other things happen under the hood when a matching rule is found. The `Rule
 
 Several function are provided for convenience in order to parse files, multline strings, or lists of strings:
 ```
-nxp.parse( parser, text )           -> root RElement object
+nxp.parse( parser, text )           -> root RNode object
 nxp.parsefile( parser, filepath )   ->      "
 nxp.parselines( parser, lines )     ->      "
 ```

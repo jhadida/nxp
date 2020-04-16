@@ -4,7 +4,7 @@ import string
 
 # ------------------------------------------------------------------------
 
-def _unirange(ur):
+def unirange(ur):
     """
     Transform list of character range 
     """ 
@@ -28,16 +28,16 @@ punct = string.punctuation
 alpha_lo = string.ascii_lowercase
 alpha_up = string.ascii_uppercase
 alpha = alpha_lo + alpha_up
-alpha8 = alpha + _unirange([ ('c0','d6'), ('d8','f6'), ('f8','ff') ])
+alpha8 = alpha + unirange([ ('c0','d6'), ('d8','f6'), ('f8','ff') ])
 
 hexanum = string.hexdigits
 alphanum = alpha_lo + alpha_up + digit 
 printable = ''.join(c for c in string.printable if c not in white)
 
 # quotes and delimiters
-quote_open = _unirange([ 'ab', '2018', '201c', '2039' ])
-quote_close = _unirange([ 'bb', '2019', '201a', '201d', '201e', '203a' ])
-quote = _unirange([ '22', '27', 'ff22', 'ff27' ]) + quote_open + quote_close
+quote_open = unirange([ 'ab', '2018', '201c', '2039' ])
+quote_close = unirange([ 'bb', '2019', '201a', '201d', '201e', '203a' ])
+quote = unirange([ '22', '27', 'ff22', 'ff27' ]) + quote_open + quote_close
 
 delim_open = '({['
 delim_close = ']})'
