@@ -39,7 +39,7 @@ cur.goto_eof()
 
 Cursors cannot be deep-copied. The underlying buffer (which contains the entire text) can be accessed via the property `cur.buffer`.
 
-Finaly, and most importantly, cursors implement methods to match and search a regular expression:
+Finally, and most importantly, cursors implement methods to match and search regular expressions:
 ```
 cur.match(r)        match regex from current position
 cur.search(r)       search rest of line from current position

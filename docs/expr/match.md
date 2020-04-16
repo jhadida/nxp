@@ -1,14 +1,13 @@
 
 # Matching
 
-The previous [introduction](expr/intro) to expressions within NXP presented two different types of tokens (contents and composition), and talked about token multiplicity.
-Here we expand on practical explanations of matching in NXP, and working with the output.
+In the [introduction](expr/intro), we presented two different types of tokens (contents and composition), and talked about how multiplicity is different from multiple distinct matches (tl;dr: contiguous matches are grouped under a single `TMatch` object). Here we expand on practical explanations of matching in NXP, and working with the output.
 
 ## Functions
 
 All `Token` objects implement the following methods:
 ```
-tok.match( cursor )         must match at the cursor's position
+tok.match( cursor )         must match from the current position
 tok.find( cursor )          advance cursor until a match is found
 tok.findall( cursor )       advance cursor until the end of the text
 tok.finditer( cursor )      generator implementation of findall
@@ -23,7 +22,7 @@ nxp.findall( token, text )   -> [ TMatch ]
 nxp.finditer( token, text )  -> generator( TMatch )
 ```
 
-> More info about the cursor object [here](ref/cursor).
+> More info about the cursor object [here](ref/read?id=cursor-and-position).
 
 ## Output
 
@@ -50,7 +49,7 @@ In order to show information about a particular match, you can simply `print` th
 ...
 ```
 where:
-- each line corresponds to a different occurence (should be contiguous);
+- each line corresponds to a different occurence (they should be contiguous);
 - the begin/end positions are formatted as `(line,col)` (starting at 0, not 1);
 - the text matched corresponds to the raw text between these positions.
 

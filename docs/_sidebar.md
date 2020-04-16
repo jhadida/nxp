@@ -1,8 +1,8 @@
 
 * Getting started
 
-  * [Installation](install)
   * [Overview](overview)
+  * [About](About)
 
 * Expression
 
@@ -13,12 +13,12 @@
 * Parsing
 
   * [Intro](parse/intro)
-  * [Components](parse/comp)
+  * [Rules](parse/rule)
+  * [Language](parse/lang)
   * [Advanced](parse/adv)
 
 * Development
 
-  * [About](dev/about)
   * [Todo](dev/todo)
   * [Testing](dev/test)
   * [Contribute](dev/contrib)

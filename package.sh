@@ -19,7 +19,7 @@ Args=(
 )
 
 # cleanup
-rm -rf build dist *.egg-info
+rm -rf build dist *.egg-info src/*.egg-info
 
 # rebuild
 python3 setup.py sdist bdist_wheel
