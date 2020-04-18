@@ -52,19 +52,26 @@ class Transform:
         return ''.join(out)
 
     def append(self,beg,end,txt):
-        assert self.beg <= beg and end <= self.end, ValueError('Bad bounds.')
+        assert self.beg <= beg and end <= self.end, ValueError(f'Out of bounds: {beg} - {end}')
         s = Substitute(beg,end,txt)
         self.sub.append(s)
         return s 
 
+    def appendl(self,lnum,txt):
+        assert self.beg[0] <= lnum <= self.end[0], ValueError(f'Line {lnum} out of bounds.')
+        line = self.buf[lnum]
+        beg = (lnum,0)
+        end = (lnum,len(line))
+        return self.append(beg,end,txt)
+
     def include(self,beg,end,fpath,r2l=False):
-        assert self.beg <= beg and end <= self.end, ValueError('Bad bounds.')
+        assert self.beg <= beg and end <= self.end, ValueError(f'Out of bounds: {beg} - {end}')
         t = Transform(FileBuffer(fpath,r2l))
         self.append(beg,end,t)
         return t
 
     def fenced(self,beg,end,w=1):
-        assert self.beg <= beg and end <= self.end, ValueError('Bad bounds.')
+        assert self.beg <= beg and end <= self.end, ValueError(f'Out of bounds: {beg} - {end}')
         bl,bc = beg 
         el,ec = end 
         t = Transform( self.buf, (bl,bc+w), (el,ec-w) )

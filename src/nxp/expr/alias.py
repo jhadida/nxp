@@ -88,9 +88,9 @@ def Fenced( boundary, esc=True, empty=True ):
     mul = '*' if empty else '+'
 
     if esc:
-        r = f'{L}((\\\\{R})|[^{R}]){mul}{R}' 
+        r = f'{L}(((\\\\{R})|[^{R}]){mul}){R}' 
     else:
-        r = f'{L}[^{R}]{mul}{R}' 
+        r = f'{L}([^{R}]{mul}){R}' 
 
     return Regex(r)
 

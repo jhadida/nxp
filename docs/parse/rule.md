@@ -33,7 +33,8 @@ decrement(name)         decrement       "               "
 advance(n)              move cursor n characters forwards
 reverse(n)                      "                backwards
 goto(name)              move cursor to: bol/eol, bot/eot, bof/eof
-pos(name)               check cursor is at: bol/eol, bot/eot, bof/eof
+pos_before(name)        check cursor is at: bol/eol, bot/eot, bof/eof
+pos_after(name)         same, but after the match
 
   SCOPE (** details below **)
 

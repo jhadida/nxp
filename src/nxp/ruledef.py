@@ -7,6 +7,18 @@ from nxp import Rule, Validate, Process, ParseError
 def _error(kw,*args):
     kw['call'] = lambda c,x,m: c.error(*args,exc=ParseError)
 
+def _assert(kw,fun,*args):
+    def cb(c,x,m):
+        if not fun(c,x,m):
+            c.error(*args,exc=ParseError)
+    kw['call'].append(cb)
+
+def _reject(kw,fun,*args):
+    def cb(c,x,m):
+        if fun(c,x,m):
+            c.error(*args,exc=ParseError)
+    kw['call'].append(cb)
+
 def _replace(kw,rep):
     kw['proc'] = [ lambda t: rep ]
     _tag(kw,'rep')
@@ -37,6 +49,9 @@ def _goto(kw,name):
 
 def _pos(kw,name):
     kw['pre'].append( lambda c,x: getattr(c,name) )
+
+def _pos_after(kw,name):
+    kw['post'].append( lambda c,x,t: getattr(c,name) )
 
 # scope manipulation
 # ------------------------------
@@ -98,6 +113,7 @@ def _call(kw,fun,*args):
 
 _argmap = {
     'error': _error, 'raise': _error, 'err': _error,
+    'assert': _assert, 'reject': _reject,
     'replace': _replace, 'rep': _replace, 'sub': _replace,
     'define': _let, 'def': _let, 'let': _let,
     'increment': _inc, 'inc': _inc, 
@@ -105,7 +121,7 @@ _argmap = {
     'advance': _adv, 'adv': _adv,
     'reverse': _rev, 'rev': _rev,
     'goto': _goto,
-    'pos': _pos, 'at': _pos,
+    'pos_before': _pos, 'pos_after': _pos_after,
     'strict': _strict, 'relax': _relax,
     'open': _open, 'push': _open,
     'close': _close, 'pop': _close,

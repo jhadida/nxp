@@ -57,8 +57,9 @@ class TMatch:
         return [ m.text for m in self._rep ]
 
     def append(self,beg,end,data=None,text=''):
-        self._rep.append(TOccur( beg, end, data, text ))
-        return self
+        x = TOccur( beg, end, data, text )
+        self._rep.append(x)
+        return x
     def commit(self):
         self._len = len(self._rep)
     def revert(self):

@@ -27,9 +27,10 @@ Sentence with \` escaped \[characters]( \$and\).
  | <br> not parsed
 
 ![image](foo/bar.jpg "Title")
+[![](foo/bar.jpg)][]
 [link][12]
 
-[12]: example.com "Super site"
+  [12]: example.com "Super site" ignored
 
 ---
 

@@ -66,7 +66,8 @@ class Rule:
         # match pattern (raise error on fail)
         if self._expr is None:
             pos = cur.pos 
-            tok = TMatch(None).append(pos,pos)
+            tok = TMatch(None)
+            tok.append(pos,pos)
         else:
             tok = self._expr.match(cur)
 
