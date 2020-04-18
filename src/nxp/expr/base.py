@@ -76,7 +76,7 @@ class Token:
                     break
             
             if len(out) >= rmin:
-                logging.debug('[Token] Match success (m=%d).',len(out))
+                logging.debug(f'[Token] Match success (m={len(out)}).')
                 pos = cur.pos
                 out.commit()
             else:

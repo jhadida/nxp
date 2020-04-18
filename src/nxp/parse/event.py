@@ -15,7 +15,7 @@ class Channel:
         self._name = name 
         self._subs = dict()
         self._pubs = 0
-        logging.debug('[Channel:%s] Initialized.',name)
+        logging.debug(f'[Channel:{name}] Initialized.')
 
     @property 
     def name(self): return self._name
@@ -44,7 +44,7 @@ class Channel:
         Iterate over subscribers, and call them with input args.
         """
         self._pubs += 1
-        logging.debug('[Channel:%s] Publish (nsub=%d, npub=%d).', self._name, self.nsub, self.npub)
+        logging.debug(f'[Channel:{self._name}] Publish (nsub={self.nsub}, npub={self.npub}).')
         for key,fun in self._subs.items():
             fun(*args, **kwargs)
 

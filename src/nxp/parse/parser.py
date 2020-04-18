@@ -82,7 +82,7 @@ class Parser:
 
         # check that context is in main state
         scope = self._ctx.scopename
-        assert scope == 'main', RuntimeError('Parsing should end in main scope, but ended in scope "%s" instead.' % scope)
+        assert scope == 'main', RuntimeError(f'Parsing should end in main scope, but ended in scope "{scope}" instead.')
         
         return self._ctx.root
  

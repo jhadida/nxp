@@ -36,9 +36,17 @@ NumInt()        integer number
 NumFloat()      floating-point number
 NumHex()        hexadecimal number
 Num()           any of the above types of number
-Link()          hyperlink
+SqString()      single-quoted string
+DqString()      double-quoted string
+String()        either type of string
+XML()           xml tags
+Link()          hyperlink (protocol required)
 Email()         e-mail addresses
+Fenced(...)     bracket/quote/etc. -delimited contents
 ```
+
+> **Note:** these aliases are **NOT** intended for validation purposes.
+> It is likely that patterns like `XLM()` or `Link()` will capture invalid contents, or occasionally fail to capture valid ones; these are intended to be **simple** patterns that capture _most_ encountered cases, with a bias towards false positives.
 
 If you would like to add more aliases (bear in mind these need to be really generic), the source code is [here](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/alias.py), and you can check the [contribution guidelines](dev/contrib).
 
@@ -93,19 +101,18 @@ where each tuple corresponds to an interval of validity for the number of repeti
 
 That's not a very friendly way of specifying multiplicities though. Instead you can set `tok.mul = m` where `m` is a string interpreted as follows:
 ```
-'1'     =>  [ 1 ]               exactly once
-'2?'    =>  [ 0, 2 ]            2 or none
+'1'     =>  [ (1,1) ]           exactly once
 '1-3'   =>  [ (1,3) ]           between 1 and 3
 '4+'    =>  [ (4,Inf) ]         4 or more
 '5-'    =>  [ (1,5) ]           between 1 and 5
-'6+?'   =>  [ 0, (6,Inf) ]      6 or more, or none
 ```
 
 There are also a few aliases defined for convenience:
 ```
 Mul(tok,m)      =>  tok.mul = m
-Opt(tok)        =>  tok.mul = '1?'
 Many(tok)       =>  tok.mul = '1+'
 ```
 
-> **Note:** these aliases create a new copy of the input token, instead of modifying it.
+> **Notes:** 
+> - These aliases create a new copy of the input token, instead of modifying it.
+> - Multiplicities should be _positive_ (they cannot be 0). To define optional tokens in sequences, use the `skip` property.

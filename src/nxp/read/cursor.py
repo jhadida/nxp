@@ -51,8 +51,7 @@ class Cursor:
     def setpos(self, line, char=0):
         self._line = self._buf[line]
         self._char = clamp( char, 0, len(self._line) )
-        logging.debug('[cursor] Set position to: L=%d, C=%d', 
-            self.lnum, self.char)
+        logging.debug(f'[cursor] Set position to: L={self.lnum}, C={self.char}')
         return self
 
     def nextchar(self, n=1):
@@ -62,10 +61,10 @@ class Cursor:
     def nextline(self, n=1):
         L = self.lnum
         if L+n < len(self._buf):
-            logging.debug('[cursor] Skip %d line(s).',n)
+            logging.debug(f'[cursor] Skip {n} line(s).')
             return self.setpos(max( L+n, 0 ))
         else:
-            logging.debug('[cursor] Cannot skip %d line(s): go to EOF.',n)
+            logging.debug(f'[cursor] Cannot skip {n} line(s): go to EOF.')
             return self.goto_eof()
 
     # disallow deep copies of cursors
@@ -100,7 +99,7 @@ class Cursor:
         return self.filepos - cur.filepos
     def __str__(self):
         l,c = self.pos
-        return '(%d,%d) "%s"' % (l,c, self._line[self._char:])
+        return f'({l},{c}) "{self._line[self._char:]}"'
 
     # beginning/end of line/text
     @property
@@ -142,20 +141,19 @@ class Cursor:
     # match text contents (expects compiled regex)
     def match(self,pat):
         if isinstance(pat,str): pat = re.compile(pat)
-        logging.debug('[cursor] Match pattern: %s',pat.pattern)
+        logging.debug(f'[cursor] Match pattern: {pat.pattern}')
         return pat.match( self._line.raw, self._char )
 
     def search(self,pat):
         if isinstance(pat,str): pat = re.compile(pat)
-        logging.debug('[cursor] Search pattern: %s',pat.pattern)
+        logging.debug(f'[cursor] Search pattern: {pat.pattern}')
         return pat.search( self._line.raw, self._char )
 
     # raise exceptions
     def error(self, msg, width=13, exc=RuntimeError):
         p = self.pos
         s,x = self._buf.show_around(p)
-        p = 'line %d, col %d' % (p[0]+1, p[1]+1)
+        p = f'line {p[0]+1}, col {p[1]+1}'
 
-        logging.error('[cursor] Error at L=%d, C=%d: %s', 
-            self._line, self._char, msg)
+        logging.error(f'[cursor] Error at L={self.lnum}, C={self.char}: {msg}')
         raise exc('\n'.join([ p, '\t'+s+'..', '\t'+x, msg ]))

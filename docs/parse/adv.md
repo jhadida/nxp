@@ -1,6 +1,10 @@
 
 # Advanced usage
 
+## Variables
+
+Variables can be saved at different levels.
+
 ## Events
 
 Multiple channels used during parsing:

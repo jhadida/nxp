@@ -47,7 +47,7 @@ class Rule:
         self._post = _callable_list(post)
         self._proc = _callable_list(proc)
         self._call = _callable_list(call)
-        logging.debug('[Rule:%d] Initialized: %s',self._id,str(expr))
+        logging.debug(f'[Rule:{self._id}] Initialized: {expr}')
 
     def __str__(self):
         return str(self._expr)
@@ -60,7 +60,7 @@ class Rule:
         # check pre-conditions
         for cond in self._pre:
             if not cond(cur,ctx):
-                logging.debug('[Rule:%d] Precondition failed.',self._id)
+                logging.debug(f'[Rule:{self._id}] Precondition failed.')
                 raise PreCheckError()
 
         # match pattern (raise error on fail)
@@ -73,11 +73,11 @@ class Rule:
         # check post-conditions
         for cond in self._post:
             if not cond(cur,ctx,tok):
-                logging.debug('[Rule:%d] Postcondition failed.',self._id)
+                logging.debug(f'[Rule:{self._id}] Postcondition failed.')
                 raise PostCheckError()
 
         # notify
-        logging.debug('[Rule:%d] Match: %s - %s', self._id, tok.beg, tok.end)
+        logging.debug(f'[Rule:{self._id}] Match: {tok.beg} - {tok.end}')
 
         # process matched text sequentially
         txt = tok.text()

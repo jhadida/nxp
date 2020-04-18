@@ -33,7 +33,7 @@ class _Buffer:
         self._r2l = r2l
 
         # notify
-        logging.info( 'Buffer initialized (%d lines).', len(self._line) )
+        logging.info(f'Buffer initialized ({len(self)} lines).')
 
     @property
     def nlines(self): return len(self)
@@ -81,25 +81,39 @@ class _Buffer:
         while L1 <= L2: 
             out.append(len(self._line[L1]))
 
-    def show_around(self,pos,width=13):
+    def show_around(self,pos,w=13):
         lnum,c = pos 
-
         L = self._line[lnum]
-        b = max(0,c-width)
-        e = min(c+width,len(L))
+
+        if w == 0:
+            b,e = 0,len(L)
+        elif w < 0:
+            b = 0
+            e = min(c-w,len(L))
+        else:
+            b = max(0,c-w)
+            e = min(c+w,len(L))
+
         s = L[b:e]
         x = list(' ' * len(s))
         x[c-b] = '^'
         return s, ''.join(x)
 
-    def show_between(self,pos1,pos2,width=13):
+    def show_between(self,pos1,pos2,w=13):
         l1,c1 = pos1 
         l2,c2 = pos2 
-
         assert l1==l2, NotImplementedError('Multiline version not implemented.')
         L = self._line[l1]
-        b = max(0,c1-width)
-        e = min(c2+width,len(L))
+
+        if w == 0:
+            b,e = 0,len(L)
+        elif w < 0:
+            b = 0
+            e = min(c2-w,len(L))
+        else:
+            b = max(0,c1-w)
+            e = min(c2+w,len(L))
+
         s = L[b:e]
         x = list(' ' * len(s))
         for k in range(c1,c2): x[k-b] = '-'
@@ -117,7 +131,7 @@ class FileBuffer(_Buffer):
     """
     def __init__(self, filename, r2l=False):
         super().__init__()
-        logging.info('Initializing buffer from file: "%s"',filename)
+        logging.info(f'Initializing buffer from file: "{filename}"')
         with open(filename) as fh:
             self._readlines(fh,r2l)
 

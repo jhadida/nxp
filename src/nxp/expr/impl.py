@@ -16,13 +16,16 @@ class Regex(Token):
         if isinstance(pat,str):
             flag = 0 if case else re.I 
             if arg: flag = arg[0] | flag 
-            self._pat = re.compile( pat, flag )
+            try:
+                self._pat = re.compile( pat, flag )
+            except:
+                raise RuntimeError(f'Could not compile: {pat}')
         elif isinstance(pat,Pattern): 
             self._pat = pat 
         else:
-            raise TypeError('Unexpected type: %s' % type(pat))
+            raise TypeError(f'Unexpected type: {type(pat)}')
 
-        logging.debug('[Regex] Initialize with pattern: %s',self.pattern)
+        logging.debug(f'[Regex] Initialize with pattern: {self.pattern}')
 
     @property
     def pattern(self): return self._pat.pattern
@@ -50,6 +53,14 @@ class Regex(Token):
 
 # ------------------------------------------------------------------------
 
+def _conv(x): 
+    if isinstance(x,Token):
+        return x 
+    elif isinstance(x,str):
+        return Regex(x)
+    else:
+        raise TypeError(f'Unexpected type: {type(x)}')
+
 class _TokenList(Token):
     def __init__(self):
         super().__init__()
@@ -60,29 +71,19 @@ class _TokenList(Token):
     def __getitem__(self,key): return self._tok[key]
 
     def _assign(self,tok):
-        ok = []
-        for k,t in enumerate(tok):
-            if isinstance(t,Token):
-                ok.append(t)
-            elif isinstance(t,str):
-                ok.append(Regex(t))
-            else:
-                raise TypeError('Item #%d is not a token.' % k)
-        self._tok = ok
+        assert len(tok) > 0, ValueError('List should contain at least one token.')
+        self._tok = [ _conv(t) for t in tok ]
 
     def prepend(self,tok):
-        assert isinstance(tok,Token), TypeError('Expected a Token')
-        self._tok.insert(0,tok)
+        self._tok.insert(0,_conv(tok))
         return self 
 
     def append(self,tok): 
-        assert isinstance(tok,Token), TypeError('Expected a Token')
-        self._tok.append(tok)
+        self._tok.append(_conv(tok))
         return self 
 
     def extend(self,tok):
-        assert all([ isinstance(x,Token) for x in tok ]), TypeError('All elements should be Token')
-        self._tok.extend(tok)
+        self._tok.extend([ _conv(t) for t in tok ])
         return self 
 
 # ------------------------------------------------------------------------
@@ -93,7 +94,7 @@ class Set(_TokenList):
         self._assign(tok)
         self._min = min
         self._max = max
-        logging.debug('[Set] Initialize with %d token(s).',len(tok))
+        logging.debug(f'[Set] Initialize with {len(tok)} token(s).')
 
     def __str__(self):
         return '{' + ', '.join([ str(t) for t in self._tok ]) + '}'
@@ -143,19 +144,24 @@ class Seq(_TokenList):
         super().__init__()
         self._assign(tok)
 
-        if skip == True or (maxskip and skip is None):
+        if skip is True or (maxskip and skip is None):
             skip = range(len(tok))
-        if skip is None or skip == False:
+        if skip is None or skip is False:
             skip = []
-        if maxskip is None:
-            maxskip = len(skip)-1
+        if isinstance(skip,int):
+            skip = [skip]
 
-        assert 0 <= maxskip <= len(skip), ValueError('Bad maxskip value.')
+        assert isinstance(skip,list), TypeError(f'Unexpected type: {type(skip)}')
         assert all([ 0 <= s < len(tok) for s in skip ]), IndexError('Skip indices out of range.')
 
+        if maxskip is None:
+            maxskip = min( len(tok)-1, len(skip) )
+
+        assert 0 <= maxskip <= len(skip), ValueError('Bad maxskip value.')
+        
         self._skp = frozenset(skip)
         self._msk = maxskip
-        logging.debug('[Seq] Initialize with %d token(s).',len(tok))
+        logging.debug(f'[Seq] Initialize with {len(tok)} token(s).')
 
     def __str__(self):
         return '[' + ', '.join([ str(t) for t in self._tok ]) + ']'
@@ -189,64 +195,56 @@ a ^ b   Set( [a,b], max=1 )
 a + b   Seq( [a,b] )
 """
 
-def _conv(x): 
-    if isinstance(x,Token):
-        return x 
-    elif isinstance(x,str):
-        return Regex(x)
-    else:
-        raise TypeError('Unexpected type: %s' % type(x))
-
 # composition operations
 def _Token_or(self,tok):
     if isinstance(self,Set):
-        return self.append(_conv(tok))
+        return self.append(tok)
     else:
-        return Set( [self, _conv(tok)], min=1 )
+        return Set( [self,tok], min=1 )
 
 def _Token_and(self,tok):
     if isinstance(self,Set) and self.min==len(self):
-        self.append(_conv(tok))
+        self.append(tok)
         self._min = len(self)
     else:
-        return Set( [self, _conv(tok)], min=2 )
+        return Set( [self,tok], min=2 )
 
 def _Token_xor(self,tok):
     if isinstance(self,Set) and self.max==1:
-        return self.append(_conv(tok))
+        return self.append(tok)
     else:
-        return Set( [self, _conv(tok)], max=1 )
+        return Set( [self,tok], max=1 )
 
 def _Token_add(self,tok):
     if isinstance(self,Seq):
-        return self.append(_conv(tok))
+        return self.append(tok)
     else:
-        return Seq( [self, _conv(tok)] )
+        return Seq( [self,tok] )
 
 def _Token_ror(self,oth):
     if isinstance(self,Set):
-        return self.prepend(_conv(oth))
+        return self.prepend(oth)
     else:
-        return Set( [_conv(oth), self], min=1 )
+        return Set( [oth,self], min=1 )
 
 def _Token_rand(self,oth):
     if isinstance(self,Set) and self.min==len(self):
-        self.prepend(_conv(oth))
+        self.prepend(oth)
         self._min = len(self)
     else:
-        return Set( [_conv(oth),self], min=2 )
+        return Set( [oth,self], min=2 )
 
 def _Token_rxor(self,oth):
     if isinstance(self,Set) and self.max==1:
-        return self.prepend(_conv(oth))
+        return self.prepend(oth)
     else:
-        return Set( [_conv(oth), self], max=1 )
+        return Set( [oth,self], max=1 )
 
 def _Token_radd(self,oth):
     if isinstance(self,Seq):
-        return self.prepend(_conv(oth))
+        return self.prepend(oth)
     else:
-        return Seq( [_conv(oth), self] )
+        return Seq( [oth,self] )
 
 # extend Token interface
 Token.__or__  = _Token_or

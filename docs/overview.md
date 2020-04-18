@@ -28,7 +28,7 @@ To give you an idea of the components involved in matching/parsing, and how they
     - `RMatch`: a single rule-match, containing a `TMatch` object, a reference to the corresponding `Rule`, and the post-processed text.
     - `RNode`: a node of the output AST, associated with a scope name, and containing a mixed list of `RMatch` and nested `RNode` objects (children nodes).
     - `Context`: a dictionary of named `Scope` objects, and the active node of the AST (an `RNode` object) which represents the _state_ during parsing. This is the only _stateful_ component.
-    - `Parser`: an object capable of processing an input `Cursor`. Contains a `Context` object and defines an event loop used to hook callback functions.
+    - `Parser`: an object capable of processing an input `Cursor`. Contains a `Context` object and defines an event loop used to hook callback functions to various events triggered during parsing.
 
 ## Workflow
 

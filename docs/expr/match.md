@@ -57,6 +57,4 @@ Finally, because it is sometimes useful to place each match within the surroundi
 ```
 print( match.insitu(cursor.buffer) )
 ```
-which shows the pattern being matched, the surrounding text, and the match is underlined with dashes.
-
-
+which shows the surrounding text with the match underlined with dashes.

@@ -11,7 +11,7 @@ def make_cursor( c, r2l=False ):
     elif isinstance(c,str):
         return ListBuffer( c.splitlines(True), r2l ).cursor()
     else:
-        raise TypeError('Unexpected type: %s' % type(c))
+        raise TypeError(f'Unexpected type: {type(c)}')
 
 def match( tok, text, r2l=False ):
     return tok.match(make_cursor(text,r2l))
@@ -72,7 +72,7 @@ def make_scope( name, sub, pfx='', out=None ):
         key = name 
     else:
         key = pfx+name
-        assert key not in out, KeyError('Duplicate scope name: %s' % key)
+        assert key not in out, KeyError(f'Duplicate scope name: {key}')
         pfx += name + '.'
 
     # create sub-scope
@@ -82,14 +82,14 @@ def make_scope( name, sub, pfx='', out=None ):
     elif isinstance(sub,dict):
         out[key] = Scope([ make_rule(r) for r in sub['main'] ])
     else:
-        raise TypeError('Unexpected type: %s' % type(sub))
+        raise TypeError(f'Unexpected type: {type(sub)}')
 
     # sub-scopes
     for key,val in sub.items():
         if key == 'main': continue 
         if isinstance(val,list):
             key = pfx+key
-            assert key not in out, KeyError('Duplicate scope name: %s' % key)
+            assert key not in out, KeyError(f'Duplicate scope name: {key}')
             out[key] = Scope([ make_rule(r) for r in val ])
         else:
             make_scope( key, val, pfx, out )
@@ -126,7 +126,7 @@ def make_parser(p):
     elif isinstance(p,Parser):
         return p 
     else:
-        raise TypeError('Unexpected type: %s' % type(p))
+        raise TypeError(f'Unexpected type: {type(p)}')
 
 def parsefile( parser, fpath, r2l=False ):
     return make_parser(parser).parse(FileBuffer(fpath,r2l).cursor())

@@ -19,9 +19,10 @@ class RMatch:
         self.rule = r 
         self.telm = m
         self.text = t
-        logging.debug('[RMatch] Initialized (Rule#%d).',r._id)
+        logging.debug(f'[RMatch] Initialized (Rule#{r._id}).')
 
     def __len__(self): return len(self.telm)
+    def __iter__(self): return iter(self.telm)
     def __getitem__(self,key): return self.telm[key]
 
     @property
@@ -63,7 +64,7 @@ class RNode:
         except:
             self._depth = 0
 
-        logging.debug('[RNode] Initialized (scope "%s").',name)
+        logging.debug(f'[RNode] Initialized (scope "{name}").')
 
     @property
     def nchild(self): return sum([ isinstance(x,RNode) for x in self.data ])
@@ -91,16 +92,16 @@ class RNode:
 
     def __str__(self,ind=None):
         off = '\t' * self.depth 
-        ind = '+ ' if ind is None else '[%d] ' % ind
-        out = [ off + ind + 'Scope("%s"): %d element(s)' % (self.name,len(self)) ]
+        ind = '+ ' if ind is None else f'[{ind}] '
+        out = [ off + ind + f'Scope("{self.name}"): {len(self)} element(s)' ]
 
         if self.has_vars():
-            out.append(off + '\t%s' % self.vars)
+            out.append(off + f'\t{self.vars}')
         for k,x in enumerate(self.data):
             if isinstance(x,RMatch):
-                out.append( off + '\t[%d] %s' % (k,x.rule) )
+                out.append( off + f'\t[{k}] {x.rule}' )
                 out.extend([ 
-                    off + '\t\t(%d) %s' % (i,m) for i,m in enumerate(x.telm) 
+                    off + f'\t\t({i}) {m}' for i,m in enumerate(x.telm) 
                 ])
             else:
                 out.append(x.__str__(k))
@@ -126,9 +127,9 @@ class RNode:
 
     # mutators
     def add_match(self,match):
-        assert isinstance(match,RMatch), TypeError('Unexpected type: %s', type(match))
+        assert isinstance(match,RMatch), TypeError(f'Unexpected type: {type(match)}')
         self.data.append(match)
-        logging.info('[RNode] Match #%d (scope "%s", rule ID %d).', len(self), self.name, match.rule._id)
+        logging.info(f'[RNode] Match #{len(self)} (scope "{self.name}", rule ID {match.rule._id}).')
         return match
 
     def add_child(self,name):

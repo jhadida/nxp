@@ -4,15 +4,15 @@ from nxp import Rule, Validate, Process, ParseError
 
 # ------------------------------------------------------------------------
 
-# shorthands
-# ------------------------------
-
 def _error(kw,*args):
     kw['call'] = lambda c,x,m: c.error(*args,exc=ParseError)
 
 def _replace(kw,rep):
     kw['proc'] = [ lambda t: rep ]
     _tag(kw,'rep')
+
+# variable
+# ------------------------------
 
 def _let(kw,name,val,level=0):
     kw['call'].append( lambda c,x,m: x.set(name,val,level) )
@@ -23,43 +23,23 @@ def _inc(kw,name,level=0):
 def _dec(kw,name,level=0):
     kw['call'].append( lambda c,x,m: x.dec(name,level) )
 
-# rule properties
+# cursor manipulation
 # ------------------------------
 
-def _tag(kw,tag):
-    kw['tag'] = tag
-    _save(kw)
+def _adv(kw,n):
+    kw['call'].append( lambda c,x,m: c.nextchar(n) )
 
-def _pre(kw,fun,*args):
-    if callable(fun):
-        kw['pre'].append( lambda c,x: fun(c,x,*args) )
-    else:
-        raise TypeError('Unexpected type: %s' % type(fun))
+def _rev(kw,n):
+    kw['call'].append( lambda c,x,m: c.nextchar(-n) )
 
-def _post(kw,fun,*args):
-    if callable(fun):
-        kw['post'].append( lambda c,x,t: fun(c,x,t,*args) )
-    elif isinstance(fun,str):
-        kw['post'].append( lambda c,x,t: all([ Validate[fun](s,*args) for s in t.text ]) )
-    else:
-        raise TypeError('Unexpected type: %s' % type(fun))
+def _goto(kw,name):
+    kw['call'].append( lambda c,x,m: getattr(c,'goto_' + name)() )
 
-def _proc(kw,fun,*args):
-    if callable(fun):
-        kw['proc'].append( lambda t: fun(t,*args) )
-    elif isinstance(fun,str):
-        kw['proc'].append( lambda t: Process[fun](t,*args) )
-    else:
-        raise TypeError('Unexpected type: %s' % type(fun))
-
-def _call(kw,fun,*args):
-    kw['call'].append( lambda c,x,m: fun(c,x,m,*args) )
+def _pos(kw,name):
+    kw['pre'].append( lambda c,x: getattr(c,name) )
 
 # scope manipulation
 # ------------------------------
-
-def _save(kw,*args):
-    kw['call'].append( lambda c,x,m: x.save(m,*args) )
 
 def _strict(kw,name):
     kw['call'].append( lambda c,x,m: x.strict(name) )
@@ -79,17 +59,40 @@ def _swap(kw,name):
 def _next(kw,name,*args):
     kw['call'].append( lambda c,x,m: x.next(name,*args) )
 
-# cursor manipulation
+def _save(kw,*args):
+    kw['call'].append( lambda c,x,m: x.save(m,*args) )
+
+# rule actions
 # ------------------------------
 
-def _adv(kw,n):
-    kw['call'].append( lambda c,x,m: c.nextchar(n) )
+def _tag(kw,tag):
+    kw['tag'] = tag
+    _save(kw)
 
-def _rev(kw,n):
-    kw['call'].append( lambda c,x,m: c.nextchar(-n) )
+def _pre(kw,fun,*args):
+    if callable(fun):
+        kw['pre'].append( lambda c,x: fun(c,x,*args) )
+    else:
+        raise TypeError(f'Unexpected type: {type(fun)}')
 
-def _goto(kw,name):
-    kw['call'].append( lambda c,x,m: getattr(c,'goto_' + name)() )
+def _post(kw,fun,*args):
+    if callable(fun):
+        kw['post'].append( lambda c,x,t: fun(c,x,t,*args) )
+    elif isinstance(fun,str):
+        kw['post'].append( lambda c,x,t: all([ Validate[fun](s,*args) for s in t.text ]) )
+    else:
+        raise TypeError(f'Unexpected type: {type(fun)}')
+
+def _proc(kw,fun,*args):
+    if callable(fun):
+        kw['proc'].append( lambda t: fun(t,*args) )
+    elif isinstance(fun,str):
+        kw['proc'].append( lambda t: Process[fun](t,*args) )
+    else:
+        raise TypeError(f'Unexpected type: {type(fun)}')
+
+def _call(kw,fun,*args):
+    kw['call'].append( lambda c,x,m: fun(c,x,m,*args) )
 
 # ------------------------------------------------------------------------
 
@@ -99,10 +102,10 @@ _argmap = {
     'define': _let, 'def': _let, 'let': _let,
     'increment': _inc, 'inc': _inc, 
     'decrement': _dec, 'dec': _dec, 
-    'pre': _pre, 'check': _pre, 'chk': _pre, 
-    'post': _post, 'validate': _post, 'valid': _post,
-    'proc': _proc, 'process': _proc, 'do': _proc,
-    'call': _call, 'callback':_call ,'cb': _call,
+    'advance': _adv, 'adv': _adv,
+    'reverse': _rev, 'rev': _rev,
+    'goto': _goto,
+    'pos': _pos, 'at': _pos,
     'strict': _strict, 'relax': _relax,
     'open': _open, 'push': _open,
     'close': _close, 'pop': _close,
@@ -110,9 +113,10 @@ _argmap = {
     'next': _next, 'nxt': _next,
     'save': _save,
     'tag': _tag, 'label': _tag, 
-    'advance': _adv, 'adv': _adv,
-    'reverse': _rev, 'rev': _rev,
-    'goto': _goto
+    'pre': _pre, 'check': _pre, 'chk': _pre, 
+    'post': _post, 'validate': _post, 'valid': _post,
+    'proc': _proc, 'process': _proc, 'do': _proc,
+    'call': _call, 'callback':_call ,'cb': _call
 }
 
 def _rule_arg(arg):
@@ -143,12 +147,12 @@ def _rule_arg(arg):
     out = defaultdict(list)
     for a in arg[1:]:
         if isinstance(a,str): a=(a,)
-        assert isinstance(a,tuple), TypeError('Rule arguments should be tuples or strings, but found "%s" instead.' % type(a))
-        assert isinstance(a[0],str), TypeError('Rule argument should beg with a command string, but found "%s" instead.' % type(a[0]))
+        assert isinstance(a,tuple), TypeError(f'Rule arguments should be tuples or strings, but found "{type(a)}" instead.')
+        assert isinstance(a[0],str), TypeError(f'Rule argument should beg with a command string, but found "{type(a[0])}" instead.')
         try:
             _argmap[ a[0] ]( out, *a[1:] )
         except KeyError:
-            raise KeyError('Unknown rule argument: "%s"' % a[0])
+            raise KeyError(f'Unknown rule argument: "{a[0]}"')
     return out
 
 def make_rule(r):
@@ -166,4 +170,4 @@ def make_rule(r):
     elif isinstance(r,Rule):
         return r
     else:
-        raise TypeError('Unexpected rule type: %s' % type(r))
+        raise TypeError(f'Unexpected rule type: {type(r)}')

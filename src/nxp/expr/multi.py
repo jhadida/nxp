@@ -15,11 +15,32 @@ def _range_overlap(a,b):
     return a[0] <= b[1] and b[0] <= a[1]
 
 def _validate_range(r):
-    assert len(r)==2 and 0 <= r[0] <= r[1], ValueError('Bad multiplicity range.')
+    # JH: 0<= changed to 0< to prevent 0 multiplicity
+    assert len(r)==2 and 0 < r[0] <= r[1], ValueError('Bad multiplicity range.')
 
 def _to_range(x):
     if isinstance(x,int):
         x = (x,x)
+    elif isinstance(x,str):
+        """
+        Convert strings of the form:
+            '1'     =>  (1,1)           exactly once
+            '1-3'   =>  (1,3)           between 1 and 3
+            '4+'    =>  (4,Inf)         4 or more
+            '5-'    =>  (1,5)           between 1 and 5
+        """
+        if x.endswith('+'):
+            x = ( int(x[:-1]), float('Inf') )
+        elif x.endswith('-'):
+            x = ( 1, int(x[:-1]) )
+        elif '-' in x:
+            x = ( int(x) for x in x.split('-') )
+        else:
+            x = int(x)
+            x = (x,x)
+    else:
+        raise TypeError(f'Unexpected type: {type(x)}')
+
     _validate_range(x)
     return x
 
@@ -38,30 +59,7 @@ def mulparse(mul):
     # try to parse input to a list of range tuples
     out = []
     if isinstance(mul,str):
-        """
-        Convert strings of the form:
-            '6'     =>  [ 6 ]
-            '5?'    =>  [ 0, 5 ]
-            '2-7'   =>  [ (2,7) ]
-            '7-'    =>  [ (1,7) ]
-            '3+?'   =>  [ 0, (3,Inf) ]
-        """
-
-        # deal with ?
-        if mul.endswith('?'):
-            out.append(0)
-            mul = mul[:-1]
-        
-        # parse format
-        if mul.endswith('+'):
-            out.append(( int(mul[:-1]), float('Inf') ))
-        elif mul.endswith('-'):
-            out.append(( 1, int(mul[:-1]) ))
-        elif '-' in mul:
-            out.append(( int(x) for x in mul.split('-') ))
-        else:
-            out.append(int(mul))
-
+        out.extend(mul.split(','))
     elif isinstance(mul,int):
         out.append(mul)
     elif isinstance(mul,tuple):
@@ -89,6 +87,6 @@ def mulparse(mul):
     # check for overlaps
     for a,b in combinations(out,2):
         if _range_overlap(a,b):
-            raise ValueError('Overlapping multiplicities %s and %s' % ( str(a), str(b) ))
+            raise ValueError(f'Overlapping multiplicities {a} and {b}')
 
     return out

@@ -28,12 +28,12 @@ class Context:
         event.create('close')
         event.create('swap')
 
-        logging.debug('[Context] Initialized (%d scopes).',len(self._scope))
+        logging.debug(f'[Context] Initialized ({len(self._scope)} scopes).')
 
     def _reset(self):
         self._node = RNode('main')
         self._hist = []
-        self._rule = None
+        self._last = None
         return self
 
     # properties
@@ -66,19 +66,16 @@ class Context:
         scope = self.scope
         node = self._node 
         pos = cur.pos 
-        logging.debug('[Context] Matching cursor at position: %s', pos)
+        logging.debug(f'[Context] Matching cursor at position: {pos}')
 
         # try to match a rule
         for idx,rule in enumerate(scope):
             try: 
                 # attempt to match current rule (throws if error)
-                self._rule = rule
                 m = rule.match(cur,self)
-
-                # record all matches in history
                 self._hist.append(m)
 
-                logging.info('[Context] Match #%d (scope "%s", rule %d, rule ID %d).', len(self._hist), node.name, idx, rule._id)
+                logging.info(f'[Context] Match #{len(self._hist)} (scope "{node.name}", rule {idx}, rule ID {rule._id}).')
 
                 self.publish( 'match', match=m, scope=scope, rule=rule, idx=idx )
 
@@ -88,18 +85,18 @@ class Context:
 
         # raise error if no rule was match in strict parsing
         if scope.strict:
-            msg = 'No matching rule (strict parsing, scope "%s").' % node.name
+            msg = f'No matching rule (strict parsing, scope "{node.name}").'
             logging.error(msg)
             cur.error(msg, exc=ParseError)
         
-        self._rule = None
         return False
 
     def save(self,match):
-        assert self._rule is not None, RuntimeError('Method save() cannot be called outside of match().')
-        self.publish( 'save', match=match )
-        return self._node.add_match(match)
-
+        if match != self._last:
+            self.publish( 'save', match=match )
+            self._node.add_match(match)
+            self._last = match
+        return match
 
     # proxy to scope variables
     def _ancestor(self,level):
@@ -131,7 +128,7 @@ class Context:
         return self
 
     def open( self, name ):
-        assert name in self._scope, KeyError('Scope not found: "%s"' % name)
+        assert name in self._scope, KeyError(f'Scope not found: "{name}"')
         self._node = self._node.add_child(name)
         self.publish( 'open', node=self._node )
         return self

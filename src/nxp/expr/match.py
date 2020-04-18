@@ -13,7 +13,7 @@ class TOccur:
         self.end = e 
         self.data = d
         self.text = t
-        logging.debug('[TOccur] New token between %s and %s.',b,e)
+        logging.debug(f'[TOccur] New token between {b} and {e}.')
 
     def isvalid(self):
         return self.end >= self.beg
@@ -21,7 +21,7 @@ class TOccur:
         return self.beg == self.end
 
     def __str__(self):
-        return '%s - %s %s' % (self.beg, self.end, self.text)
+        return f'{self.beg} - {self.end} {self.text}'
 
 # ------------------------------------------------------------------------
 
@@ -50,6 +50,8 @@ class TMatch:
     def beg(self): return self._rep[0].beg 
     @property 
     def end(self): return self._rep[-1].end
+    @property 
+    def pattern(self): return str(self.token)
 
     def text(self):
         return [ m.text for m in self._rep ]
@@ -67,16 +69,6 @@ class TMatch:
     def isempty(self):
         return len(self._rep) == 0
 
-    def insitu(self,buf,width=13):
-        out = [ 'Pattern: %s' % str(self.token) ]
-        for k,m in enumerate(self._rep):
-            idx = '[%d] ' % k 
-            pfx = ' ' * len(idx)
-            s,x = buf.show_between( m.beg, m.end, width )
-            out.append( '\t' + idx + s )
-            out.append( '\t' + pfx + x )
-        return '\n'.join(out)
-
     def __len__(self):
         return len(self._rep)
     def __getitem__(self,key):
@@ -84,5 +76,16 @@ class TMatch:
     def __iter__(self):
         return iter(self._rep)
     def __str__(self):
-        return '\n'.join([ '[%d] %s' % (k,m) for k,m in enumerate(self._rep) ])
+        return '\n'.join([ f'[{k}] {m}' for k,m in enumerate(self._rep) ])
+        
+    # pretty-print
+    def insitu(self,buf,w=13):
+        out = []
+        for k,m in enumerate(self._rep):
+            idx = f'[{k}] '
+            pfx = ' ' * len(idx)
+            s,x = buf.show_between( m.beg, m.end, w )
+            out.append( '\t' + idx + s )
+            out.append( '\t' + pfx + x )
+        return '\n'.join(out)
         
