@@ -34,15 +34,30 @@ def _to_range(x):
         elif x.endswith('-'):
             x = ( 1, int(x[:-1]) )
         elif '-' in x:
-            x = ( int(x) for x in x.split('-') )
+            x = tuple( int(x) for x in x.split('-') )
         else:
             x = int(x)
             x = (x,x)
-    else:
-        raise TypeError(f'Unexpected type: {type(x)}')
 
     _validate_range(x)
     return x
+
+# ------------------------------------------------------------------------
+
+class mulrange:
+    def __init__(self,*arg):
+        self.range = range(*arg) 
+    def __str__(self):
+        return str(self.range)
+    def __repr__(self):
+        return repr(self.range)
+    def __len__(self):
+        return len(self.range)
+    def __getitem__(self,key):
+        return self.range.__getitem__(key)
+    def __iter__(self):
+        for m in self.range:
+            yield (m,m)
 
 def mulparse(mul):
     """

@@ -1,4 +1,5 @@
 
+from .multi import *
 from .base import Token
 from .match import TMatch, TOccur, MatchError
 from .impl import *
