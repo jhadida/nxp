@@ -69,11 +69,12 @@ class Rule:
                 raise PreCheckError()
 
         # match pattern (raise error on fail)
+        cap = dict() # save captures
         if self._expr is None:
             pos = cur.pos 
             match = TMatch(None,pos,pos)
         else:
-            match = self._expr.match(cur)
+            match = self._expr.match(cur,cap)
 
         # check post-conditions
         for cond in self._post:
@@ -90,7 +91,7 @@ class Rule:
             txt = p(txt)
 
         # call functions
-        out = RMatch(self,match,txt)
+        out = RMatch(self,match,txt,cap)
         for fun in self._call:
             fun(cur,ctx,out)
 

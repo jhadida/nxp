@@ -27,6 +27,7 @@ class Token:
 
     def capture(self,name):
         self._name = name
+        return self
 
     # matching
     def __call__(self,cur):

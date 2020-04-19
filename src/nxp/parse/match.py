@@ -13,13 +13,17 @@ class RMatch:
         given repetition of the Token, which may be processed by
         callbacks in the Rule definition.
     """
-    __slots__ = ('rule','match','text')
+    __slots__ = ('rule','match','text','saved')
     
-    def __init__(self,r,m,t):
+    def __init__(self,r,m,t,s=None):
         self.rule = r 
         self.text = t
         self.match = m
+        self.saved = s
         logging.debug(f'[RMatch] Initialized (Rule#{r._id}).')
+
+    def __getitem__(self,key): return self.saved[key]
+    def __contains__(self,key): return key in self.saved
 
     @property
     def tag(self): return self.rule.tag
@@ -110,6 +114,7 @@ class RNode:
 
     def show(self,*arg,**kv):
         print(self.str(*arg,**kv))
+        return self
 
     def __str__(self):
         return self.str()
