@@ -13,8 +13,8 @@ def make_cursor( c, r2l=False ):
     else:
         raise TypeError(f'Unexpected type: {type(c)}')
 
-def match( tok, text, r2l=False ):
-    return tok.match(make_cursor(text,r2l))
+def match( tok, text, r2l=False, cap={} ):
+    return tok.match(make_cursor(text,r2l),cap)
 
 def find( tok, text, r2l=False ):
     return tok.find(make_cursor(text,r2l))

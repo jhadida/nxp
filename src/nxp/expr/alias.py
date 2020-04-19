@@ -3,29 +3,30 @@
 Define aliases for expressions with specific content or options.
 """
 
-from nxp.read import charset
-from .impl import *
+import re
+from .content import Regex
+from .compose import Set, Seq
+from .repeat import Rep
 
 # ------------------------------------------------------------------------
 
-def Mul(tok,*args):
-    return tok.__mul__(*args)
+def Opt(tok):
+    return Rep(tok,'1-')
+
+def Any(tok):
+    return Rep(tok,'0+')
+
+def Few(tok):
+    return Rep(tok,'1+')
 
 def Many(tok):
-    return tok.__mul__('1+')
-
-Rep = Mul
-
-# ------------------------------------------------------------------------
-
-def Any(*args):
-    return Set( args, min=1 )
-
-def All(*args):
-    return Set( args, min=len(args) )
+    return Rep(tok,'2+')
 
 def Xor(*args):
     return Set( args, max=1 )
+
+def All(*args):
+    return Set( args, min=len(args) )
 
 def TwoOf(*args):
     return Set( args, min=2, max=2 )
@@ -40,9 +41,6 @@ def Lit(val, **kwargs):
 
 def Chars(val, **kwargs):
     return Regex( '[' + val + ']+', **kwargs )
-
-def White():
-    return Chars( charset.white )
 
 def Word():
     return Regex( r'\w+' )
@@ -70,9 +68,9 @@ def Email():
     return Regex( r"[a-z0-9][a-z0-9._%+-]*@([a-z0-9-]+\.)+[a-z]{2,}", case=False )
 
 def XML():
-    value = String().append( r'[\s=\'"<>`]+' )
+    value = String().append( r'(\w+)' )
     attr = Seq( [r'\s+(\w+)', Seq([ r'\s*=\s*', value ])], skip=1 )
-    tag = Seq( [r'<(\w+)', attr, r'\s*/?>'], skip=1 )
+    tag = Seq( [r'<(\w+)', Any(attr), r'\s*/?>'], skip=1 )
     return Either( tag, r'</(\w+)\s*>' )
     
 def Fenced( boundary, esc=True, empty=True ):

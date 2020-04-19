@@ -60,4 +60,25 @@ class TokenSet:
 
     def __iter__(self):
         return TokenSetIterator(self.root)
-        
+
+# ------------------------------------------------------------------------
+
+class TokenChain:
+    def __init__(self,tlist=[]):
+        self.tok = tlist
+        self.len = len(tlist)
+
+    def isvalid(self): return self.len == len(self.tok)
+    def isempty(self): return self.len == 0
+
+    def __len__(self): return len(self.tok)
+    def __iter__(self): return iter(self.tok)
+    def __getitem__(self,key): return self.tok[key]
+
+    def append(self,tok):
+        self.tok.append(tok)
+
+    def commit(self):
+        self.len = len(self.tok)
+    def revert(self):
+        del self.tok[self.len:]
