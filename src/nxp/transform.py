@@ -10,8 +10,7 @@ class Substitute:
         self.end = end 
         self.txt = txt
 
-    def __str__(self):
-        return str(self.txt)
+    def __str__(self): return str(self.txt)
 
     def __lt__(self,other): return self.end <= other.beg
     def __gt__(self,other): return other < self
@@ -37,7 +36,7 @@ class Transform:
         for a,b in zip(self.sub,self.sub[1:]):
             assert a < b, RuntimeError('Bad substitution order.')
 
-    def __str__(self,ind=''):
+    def __str__(self):
         self.check()
 
         out = []
@@ -71,6 +70,11 @@ class Transform:
         return t
 
     def fenced(self,beg,end,w=1):
+        """
+        Create, append and return a new transform for text between:
+            beg + w chars
+            end - w chars
+        """
         assert self.beg <= beg and end <= self.end, ValueError(f'Out of bounds: {beg} - {end}')
         bl,bc = beg 
         el,ec = end 

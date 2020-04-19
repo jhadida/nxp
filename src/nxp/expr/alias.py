@@ -13,14 +13,14 @@ from .repeat import Rep
 def Opt(tok):
     return Rep(tok,'1-')
 
-def Any(tok):
-    return Rep(tok,'0+')
+def Any(tok,sep=None):
+    return Rep(tok,'0+',sep)
 
-def Few(tok):
-    return Rep(tok,'1+')
+def Few(tok,sep=None):
+    return Rep(tok,'1+',sep)
 
-def Many(tok):
-    return Rep(tok,'2+')
+def Many(tok,sep=None):
+    return Rep(tok,'2+',sep)
 
 def Xor(*args):
     return Set( args, max=1 )

@@ -75,9 +75,9 @@ class Context:
                 m = rule.match(cur,self)
                 self._hist.append(m)
 
-                logging.info(f'[Context] Match #{len(self._hist)} (scope "{node.name}", rule {idx}, rule ID {rule._id}).')
+                logging.info(f'[Context] Match #{len(self._hist)} (scope "{node.name}", ruleNum {idx}, ruleID {rule.id}).')
 
-                self.publish( 'match', match=m, scope=scope, rule=rule, idx=idx )
+                self.publish( 'match', match=m, scope=scope, rule=rule, rnum=idx )
 
                 return True
             except (PreCheckError,MatchError,PostCheckError):
@@ -92,6 +92,7 @@ class Context:
         return False
 
     def save(self,match):
+        # safeguard against duplicate save
         if match != self._last:
             self.publish( 'save', match=match )
             self._node.add_match(match)
@@ -99,24 +100,24 @@ class Context:
         return match
 
     # proxy to scope variables
-    def _ancestor(self,level):
+    def _an(self,level):
         return self._node.ancestor(level)
 
     def get( self, name, level=0 ):
-        return self._ancestor(level).get(name)
+        return self._an(level).get(name)
     def set( self, name, val, level=0 ):
-        return self._ancestor(level).set(name,val)
+        return self._an(level).set(name,val)
     def apply( self, name, fun, level=0 ):
-        return self._ancestor(level).apply(name,fun)
+        return self._an(level).apply(name,fun)
     def setdefault( self, name, val, level=0 ):
-        return self._ancestor(level).setdefault(name,val)
+        return self._an(level).setdefault(name,val)
 
     def append( self, name, val, level=0 ):
-        self._ancestor(level).append(val)
+        self._an(level).append(val)
     def inc( self, name, level=0 ):
-        self._ancestor(level).inc(name)
+        self._an(level).inc(name)
     def dec( self, name, level=0 ):
-        self._ancestor(level).dec(name)
+        self._an(level).dec(name)
 
     # scope manipulation
     def strict(self,name):

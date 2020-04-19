@@ -94,7 +94,7 @@ def _post(kw,fun,*args):
     if callable(fun):
         kw['post'].append( lambda c,x,t: fun(c,x,t,*args) )
     elif isinstance(fun,str):
-        kw['post'].append( lambda c,x,t: all([ Validate[fun](s,*args) for s in t.text ]) )
+        kw['post'].append( lambda c,x,t: Validate[fun](t.text,*args) )
     else:
         raise TypeError(f'Unexpected type: {type(fun)}')
 

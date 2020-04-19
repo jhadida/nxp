@@ -32,13 +32,13 @@ class Token:
     def __call__(self,cur):
         return self.match(cur)
         
-    def match(self,cur,cap={}):
+    def match(self,cur,cap=None):
         """
         Returns TMatch in case of successful match, 
         throws MatchError otherwise.
         """
         m = self._match(cur,cap)
-        if self._name:
+        if self._name and cap is not None:
             cap[self._name] = m
         return m
 

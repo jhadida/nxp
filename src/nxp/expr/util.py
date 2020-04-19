@@ -64,9 +64,9 @@ class TokenSet:
 # ------------------------------------------------------------------------
 
 class TokenChain:
-    def __init__(self,tlist=[]):
-        self.tok = tlist
-        self.len = len(tlist)
+    def __init__(self):
+        self.tok = []
+        self.len = 0
 
     def isvalid(self): return self.len == len(self.tok)
     def isempty(self): return self.len == 0

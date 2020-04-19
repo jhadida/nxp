@@ -7,7 +7,7 @@ import nxp
 
 # ------------------------------------------------------------------------
 
-from nxp import Seq, Rep, Mul, Either, XML, String, Fenced
+from nxp import Seq, Rep, Either, XML, String, Fenced
 
 # rules and expressions
 escape = [ r'\\[(){}\[\]*_`#+-.!$]', ('tag','esc'), ('proc',lambda t: t[1:]) ]
@@ -29,12 +29,12 @@ ref_value = Either( String(), r'(\S+)' )
 ref_label = Fenced( ('[',']'), esc=False )
 tgt_value = Either( String(), r'([^\)\s]+)' )
 
-tgt_link = Seq( [r'\(\s*', tgt_value, Seq([ '\s+', tgt_value ]), r'\s*\)'], skip=[1,2] )
+tgt_link = Seq( [r'\(\s*', Rep(tgt_value,'2-',sep='\s+'), r'\s*\)'] )
 target = Either( tgt_link, ref_label ) 
 
 img = Seq( [Fenced( ('![',']') ), target] )
 url = Seq( [r'\[\s*', Either( img, r'((\\\])|[^\]])+' ), r'\s*\]', target] )
-ref = Seq( [ ref_label, r':\s*', ref_value, Seq([ '\s+', ref_value ]) ], skip=3 )
+ref = Seq( [ ref_label, r':\s*', Rep(ref_value,'1-2',sep='\s+') ] )
 
 # ------------------------------------------------------------------------
 
@@ -211,3 +211,24 @@ def md_callback(tsf,elm):
 
 def compile( infile, outfile, wrap=html_wrapper ):
     pass
+
+# ------------------------------------------------------------------------
+
+# x = out[15]
+# print(x[0].data) # fenced, target
+# print(x[0].data[0][0].data) # fence regex
+# print(x[0].data[1][0].data) # target switch: link/label
+# print(x[0].data[1][0].data[0][0].data) # link seq: (, val, val, )
+# print(x[0].data[1][0].data[0][0].data[1][0].data)
+# print(x[0].data[1][0].data[0][0].data[1][0].data[0][0].data) # first value
+# print(x[0].data[1][0].data[0][0].data[2][0].data)
+# print(x[0].data[1][0].data[0][0].data[2][0].data[1][0].data[0][0].data[0][0].data) # second value
+# print('----------')
+
+# y = out[16]
+# print(y[0].data[1][0].data[0][0].data)
+# print('----------')
+
+# z = out[17]
+# print(z[0].data[1][0].data[0][0].data)
+# print('----------')

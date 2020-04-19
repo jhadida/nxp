@@ -13,24 +13,24 @@ class RMatch:
         given repetition of the Token, which may be processed by
         callbacks in the Rule definition.
     """
-    __slots__ = ('rule','telm','text')
+    __slots__ = ('rule','match','text')
     
     def __init__(self,r,m,t):
         self.rule = r 
-        self.telm = m
         self.text = t
+        self.match = m
         logging.debug(f'[RMatch] Initialized (Rule#{r._id}).')
-
-    def __len__(self): return len(self.telm)
-    def __iter__(self): return iter(self.telm)
-    def __getitem__(self,key): return self.telm[key]
 
     @property
     def tag(self): return self.rule.tag
     @property 
-    def beg(self): return self.telm.beg 
+    def tok(self): return self.match.tok
+    @property 
+    def beg(self): return self.match.beg 
     @property
-    def end(self): return self.telm.end
+    def end(self): return self.match.end
+    @property 
+    def data(self): return self.match.data
 
 # ------------------------------------------------------------------------
 
@@ -90,22 +90,29 @@ class RNode:
     def __getitem__(self,key): return self.data[key]
     def __contains__(self,key): return key in self.vars
 
-    def __str__(self,ind=None):
+    def str(self,num=None,pat=False):
         off = '\t' * self.depth 
-        ind = '+ ' if ind is None else f'[{ind}] '
-        out = [ off + ind + f'Scope("{self.name}"): {len(self)} element(s)' ]
+        pfx = '' if num is None else f'[{num}] '
+        out = [ off + pfx + f'Scope("{self.name}"): {len(self)} element(s)' ]
 
         if self.has_vars():
             out.append(off + f'\t{self.vars}')
         for k,x in enumerate(self.data):
             if isinstance(x,RMatch):
-                out.append( off + f'\t[{k}] {x.rule}' )
-                out.extend([ 
-                    off + f'\t\t({i}) {m}' for i,m in enumerate(x.telm) 
-                ])
+                if pat:
+                    out.append( off + f'\t[{k}] {x.rule}' )
+                    out.append( off + f'\t\t{x.match}' )
+                else:
+                    out.append( off + f'\t[{k}] {x.match}' )
             else:
-                out.append(x.__str__(k))
+                out.append(x.str(num=k))
         return '\n'.join(out)
+
+    def show(self,*arg,**kv):
+        print(self.str(*arg,**kv))
+
+    def __str__(self):
+        return self.str()
         
     # variable definition
     def get(self,name):

@@ -13,7 +13,7 @@ class TMatch:
     """
     __slots__ = ('tok','beg','end','data','text')
 
-    def __init__(self,tok,beg,end,data,text):
+    def __init__(self,tok,beg,end,data=None,text=''):
         self.tok = tok 
         self.beg = beg
         self.end = end 

@@ -48,8 +48,10 @@ class Parser:
         return self._ctx._scope[name]
     def strict(self,name):
         self.scope(name).strict = True
+        return self
     def relax(self,name):
         self.scope(name).strict = False
+        return self
 
     # proxy to event hub
     def publish( self, name, *args, **kwargs ):

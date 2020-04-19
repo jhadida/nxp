@@ -1,5 +1,5 @@
 
-from .match import RNode, RMatch
+from .match import RMatch, RNode
 from .rule import Rule, Scope, PostCheckError, PreCheckError
 from .context import Context, ParseError
 from .parser import Parser

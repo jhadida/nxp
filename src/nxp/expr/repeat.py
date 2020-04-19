@@ -117,7 +117,7 @@ class Rep(Token):
 
         self._tok = conv(tok)
         self._mul = mulparse(mul)
-        self._sep = sep
+        self._sep = conv(sep) if sep else None
 
         logging.debug(f'[Rep] Initialise with token: {tok}')
 
