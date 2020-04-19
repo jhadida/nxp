@@ -1,6 +1,8 @@
 
 # NXP: Natural eXpression Parsing
 
+> Documentation in progress and subject to changes! (Apr 2020)
+
 NXP is a parsing library written in Python 3, inspired by [pyparsing](https://github.com/pyparsing/pyparsing) and [Microsoft Monarch](https://microsoft.github.io/monaco-editor/monarch.html). 
 
 It allows users to do two things:
