@@ -67,32 +67,22 @@ print(nxp.parsefile( parser, 'foo.txt' ))
 ```
 and the output is a simple AST:
 ```
-+ Scope("main"): 3 element(s)
+Scope("main"): 3 element(s)
 	[0] Scope("command"): 2 element(s)
-		[0] \\(\w+)
-			(0) (1, 0) - (1, 6) \quote
+		[0] (1, 0) - (1, 6) \quote
 		[1] Scope("command.body"): 3 element(s)
-			[0] \{
-				(0) (1, 6) - (1, 7) {
+			[0] (1, 6) - (1, 7) {
 			[1] Scope("command"): 2 element(s)
-				[0] \\(\w+)
-					(0) (2, 30) - (2, 33) \it
+				[0] (2, 30) - (2, 33) \it
 				[1] Scope("command.body"): 2 element(s)
-					[0] \{
-						(0) (2, 33) - (2, 34) {
-					[1] \}
-						(0) (2, 37) - (2, 38) }
-			[2] \}
-				(0) (3, 0) - (3, 1) }
+					[0] (2, 33) - (2, 34) {
+					[1] (2, 37) - (2, 38) }
+			[2] (3, 0) - (3, 1) }
 	[1] Scope("command"): 1 element(s)
-		[0] \\(\w+)
-			(0) (5, 23) - (5, 31) \command
+		[0] (5, 23) - (5, 31) \command
 	[2] Scope("command"): 2 element(s)
-		[0] \\(\w+)
-			(0) (5, 54) - (5, 62) \command
+		[0] (5, 54) - (5, 62) \command
 		[1] Scope("command.body"): 2 element(s)
-			[0] \{
-				(0) (5, 62) - (5, 63) {
-			[1] \}
-				(0) (5, 63) - (5, 64) }
+			[0] (5, 62) - (5, 63) {
+			[1] (5, 63) - (5, 64) }
 ```
