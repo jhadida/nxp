@@ -16,7 +16,7 @@ Is it really that simple? Don't take my word for it; read the [overview](overvie
 
 NXP is published on PyPI (the Python package index) under the name `nxp`. You will need **Python 3.6** or later installed on your machine.
 
-To install NXP, type the following in a terminal:
+To install NXP, type the following in a terminal (Linux/Mac):
 ```
 python3 -m pip install --user --upgrade nxp
 ```

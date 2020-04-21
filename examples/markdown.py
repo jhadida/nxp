@@ -119,7 +119,8 @@ lang = {
         [ r'<!--', ('open','comment'), 'save' ],
         [ XML_close(), ('valid',validTag), 'close', 'save', 'close' ],
         [ XML_self(), ('tag','html') ], # html
-        [ XML_open(), ('open','htmlblock'), ('call',saveTag), 'save' ] # html
+        [ XML_open(), ('open','htmlblock'), ('call',saveTag), 'save' ], # html
+        [ r'.*', ('pos_after','eof'), 'save' ]
     ],
     'comment': [ [ r'-->', 'save', 'close' ] ],
     'codeblock': [ [ r'^```', 'save', 'close' ] ],
@@ -184,7 +185,9 @@ def itag(name,body,sep='',**kv): # inline
 def stag(name,**kv): # self-closing
     return f"<{name}{attr2str(kv)} />"
 
-class rtag:
+# ------------------------------------------------------------------------
+
+class md_tag:
     __slots__ = ('name','body','attr','sep')
     def __init__(self,name,body,sep='',**kv):
         self.name = name 
@@ -192,30 +195,19 @@ class rtag:
         self.attr = dict(kv)
         self.sep = sep
     def __str__(self):
-        return f"<{self.name}{attr2str(self.attr)}>{self.sep}{self.body}{self.sep}</{self.name}>"
-
-# ------------------------------------------------------------------------
-
-md_ref = dict() # used to store references
-md_par = True   # used to wrap text in paragraph
-
-def md_getref(name):
-    # empty keys are valid (but invalid keys are not)
-    if name:
-        return md_ref[name]
-    else:
-        return name
+        return itag( self.name, self.body, self.sep, **self.attr )
 
 class md_refurl:
     """
     Postpone the processing of links defined with a reference label.
     """
-    __slots__ = ('body','key')
-    def __init__(self,body,key):
+    __slots__ = ('cpl','body','key')
+    def __init__(self,cpl,body,key):
+        self.cpl = cpl
         self.body = body
         self.key = key 
     def __str__(self):
-        val = md_getref(self.key)
+        val = self.cpl.getref(self.key)
         if isinstance(val,str):
             return itag('a',self.body,href=val)
         else:
@@ -225,40 +217,37 @@ class md_refimg:
     """
     Postpone the processing of images defined with a reference label.
     """
-    __slots__ = ('alt','key')
-    def __init__(self,alt,key):
+    __slots__ = ('cpl','alt','key')
+    def __init__(self,cpl,alt,key):
+        self.cpl = cpl
         self.alt = alt
         self.key = key 
     def __str__(self):
-        val = md_getref(self.key)
+        val = self.cpl.getref(self.key)
         if isinstance(val,str):
             return stag('img',alt=self.alt,src=val)
         else:
             return stag('img',alt=self.alt,src=val[0],title=val[1])
 
 class md_item:
-    __slots__ = ('body','par')
-    def __init__(self,line):
+    __slots__ = ('cpl','body','par')
+    def __init__(self,cpl,line):
+        self.cpl = cpl
         self.body = [line] 
         self.par = False
     def append(self,line):
         self.body.append(line)
-    def __str__(self):
-        global md_par
-        md_par = self.par 
-        body = nxp.process( 
-            parser, md_callback, 
-            nxp.ListBuffer(self.body) 
-        )
-        md_par = True
+    def __str__(self): 
+        body = self.cpl.process( nxp.ListBuffer(self.body), self.par )
         return str(body)
 
 class md_list:
     """
     Centralise the construction of lists.
     """
-    __slots__ = ('ord','item')
-    def __init__(self,ord=False):
+    __slots__ = ('cpl','ord','item')
+    def __init__(self,cpl,ord=False):
+        self.cpl = cpl
         self.ord = ord
         self.item = []
     
@@ -266,162 +255,183 @@ class md_list:
     def __getitem__(self,key): return self.item[key]
     
     def __str__(self):
-        return itag( 'ol' if self.ord else 'ul',
-            '\n'.join([ itag('li',str(t)) for t in self.item ]),
-            sep='\n' )
+        name = 'ol' if self.ord else 'ul'
+        body = '\n'.join([ itag('li',str(t)) for t in self.item ])
+        return itag( name, body, sep='\n' )
     
     def new(self,line):
-        it = md_item(line)
+        it = md_item(self.cpl,line)
         self.item.append(it)
         return it
 
 # ------------------------------------------------------------------------
 
-def md_procval(m):
-    m = m.data[0] # switch string/regex
-    if isinstance(m.data,list): 
-        # dq/sq string > group between quotes
-        return m.data[0].data[1]
-    else: # raw text
-        return m.data[0]
+class MarkdownCompiler:
+    def __init__(self):
+        self._ref = {}
+        self._par = True 
 
-def md_procimg(elm):
-    alt = elm['alt'].data[1]
-    if 'imgvalue' in elm:
-        val = elm['imgvalue'].data
-        att = { 'alt': alt, 'src': md_procval(val[0]) }
-        if len(val) > 1: att['title'] = md_procval(val[1])
-        return stag('img',**att)
-    else:
-        lab = elm['imglabel'].data[1]
-        return md_refimg( alt, lab )
+    def setref(self,key,val):
+        self._ref[key] = val
+    def getref(self,key):
+        return self._ref[key] if key else ''
 
-def md_procurl(elm):
-    # body can be an image
-    body = elm['body'].data[0]
-    if isinstance(body.data,list):
-        body = md_procimg(elm)
-    else:
-        body = body.data[0]
+    def process( self, buf, par=True ):
+        self._par = par 
+        return nxp.process( parser, self._callback, buf )
 
-    # sort value/ref
-    if 'urlvalue' in elm:
-        val = elm['urlvalue'].data
-        atr = { 'href': md_procval(val[0]) }
-        if len(val) > 1: atr['title'] = md_procval(val[1])
-        return itag('a',body,**atr)
-    else:
-        lab = elm['urllabel'].data[1]
-        return md_refurl( body, lab )
-            
-def md_procref(elm):
-    lab = elm['label'].data[1]
-    val = elm['value'].data
-    if len(val) > 1:
-        md_ref[lab] = (md_procval(val[0]), md_procval(val[1]))
-    else:
-        md_ref[lab] = md_procval(val[0])
+    # main callback function
+    def _callback( self, tsf, elm ):
+        if isinstance(elm,nxp.RMatch):
+            beg,end = elm.beg, elm.end 
+            tag = elm.tag 
 
-def md_proclist(buf,elm):
-    lst = md_list( elm.name.endswith('digit') )
-    ind = elm.get('indent')
-    it = None
-    for m in elm:
-        if m.tag == 'item':
-            it = lst.new( buf[m.beg[0]].raw[ind:] )
-        elif m.tag == 'empty':
-            it.par = True 
+            if tag == "":
+                pass 
+            elif tag == 'sec': # section heading
+                depth = len(elm.text)
+                text = tsf.buffer.after(end).strip()
+                tsf.sub_line( beg[0], itag(f'h{depth}',text) )
+            elif tag == 'rule': # horizontal rule
+                tsf.sub_line( beg[0], '<hr>' )
+            elif tag == 'ref': # reference 
+                self._proc_ref(elm)
+                tsf.sub_line( beg[0], '' )
+            elif tag == 'esc': # character escape
+                tsf.sub( beg, end, elm.text )
+            elif tag == 'img': 
+                tsf.sub( beg, end, self._proc_img(elm) )
+            elif tag == 'url': 
+                tsf.sub( beg, end, self._proc_url(elm) )
+            elif tag == 'bold': 
+                tsf.sub( beg, end, itag('strong',elm.data[0].data[1]) )
+            elif tag == 'emph':
+                tsf.sub( beg, end, itag('emph',elm.data[0].data[1]) )
+            elif tag == 'code':
+                tsf.sub( beg, end, itag('code',elm.data[1]) )
+            elif tag == 'math':
+                tsf.protect( beg, end )
+            elif tag == 'html':
+                tsf.protect(beg,end)
+            else:
+                raise TagError(tag)
+
+        elif elm.name == 'text':
+            if len(elm)==0: return
+            beg = elm[0].beg
+            end = elm[-1].end
+            sub = tsf.restrict(beg,end)
+            for m in elm: self._callback(sub,m)
+            tsf.sub( beg, end, md_tag('p',sub) if self._par else sub )
+
+        elif elm.name == 'htmlblock':
+            assert len(elm)==3, LengthError(elm)
+            assert elm[1].name == 'text', ScopeError(elm[1].name)
+            beg = elm[0].beg 
+            end = elm[-1].end
+            sub = tsf.restrict(beg,end)
+            for m in elm[1]: self._callback(sub,m)
+            tsf.sub( beg, end, sub )
+
+        elif elm.name == 'quote':
+            lines = [ tsf.buffer[m.beg[0]].raw[len(m.text):] for m in elm ]
+            self._par = any([ re.match( r'^\s*$', line ) for line in lines ])
+            tsf.sub_lines( 
+                elm[0].beg[0], elm[-1].end[0], 
+                md_tag('blockquote',nxp.process( 
+                    parser, self._callback, 
+                    nxp.ListBuffer(lines)
+                ),sep='\n')
+            )
+            self._par = True
+
+        elif elm.name == 'codeblock':
+            assert len(elm)==2, LengthError(elm)
+            lang = elm[0].data[1]
+            attr = {'lang': lang} if lang else {}
+            tsf.sub_lines( 
+                elm[0].beg[0], elm[1].end[0], 
+                itag('pre',itag('code',
+                    tsf.buffer.between(elm[0].end, elm[1].beg), 
+                    **attr
+                )) 
+            )
+
+        elif elm.name.startswith('list'):
+            tsf.sub_lines( 
+                elm[0].beg[0], elm[-1].end[0], 
+                self._proc_list(tsf.buffer,elm) 
+            )
+
+        elif elm.name == 'mathblock':
+            assert len(elm)==2, LengthError(elm)
+            tsf.protect( elm[0].beg, elm[1].end )
+
+        elif elm.name == 'comment':
+            tsf.protect( elm[0].beg, elm[-1].end )
+
         else:
-            it.append( buf[m.beg[0]].raw[ind:] )
-    return lst
+            raise NameError(f'Unknown element: {elm.name}')
+    
+    # ----------  =====  ----------
+    
+    def _proc_value(self,m):
+        m = m.data[0] # switch string/regex
+        if isinstance(m.data,list): 
+            # dq/sq string > group between quotes
+            return m.data[0].data[1]
+        else: # raw text
+            return m.data[0]
 
-# ------------------------------------------------------------------------
-
-def md_callback( tsf, elm ):
-    global md_par
-    if isinstance(elm,nxp.RMatch):
-        beg,end = elm.beg, elm.end 
-        tag = elm.tag 
-
-        if tag == "":
-            pass 
-        elif tag == 'sec': # section heading
-            depth = len(elm.text)
-            text = tsf.buffer.after(end).strip()
-            tsf.sub_line( beg[0], itag(f'h{depth}',text) )
-        elif tag == 'rule': # horizontal rule
-            tsf.sub_line( beg[0], '<hr>' )
-        elif tag == 'ref': # reference 
-            md_procref(elm)
-            tsf.sub_line( beg[0], '' )
-        elif tag == 'esc': # character escape
-            tsf.sub( beg, end, elm.text )
-        elif tag == 'img': 
-            tsf.sub( beg, end, md_procimg(elm) )
-        elif tag == 'url': 
-            tsf.sub( beg, end, md_procurl(elm) )
-        elif tag == 'bold': 
-            tsf.sub( beg, end, itag('strong',elm.data[0].data[1]) )
-        elif tag == 'emph':
-            tsf.sub( beg, end, itag('emph',elm.data[0].data[1]) )
-        elif tag == 'code':
-            tsf.sub( beg, end, itag('code',elm.data[1]) )
-        elif tag == 'math':
-            tsf.protect( beg, end )
-        elif tag == 'html':
-            tsf.protect(beg,end)
+    def _proc_ref(self,elm):
+        lab = elm['label'].data[1]
+        val = elm['value'].data
+        if len(val) > 1:
+            r = (self._proc_value(val[0]), self._proc_value(val[1]))
         else:
-            raise TagError(tag)
+            r = self._proc_value(val[0])
+        self.setref(lab,r)
 
-    elif elm.name == 'text':
-        if len(elm)==0: return
-        beg = elm[0].beg
-        end = elm[-1].end
-        sub = tsf.restrict(beg,end)
-        for m in elm: md_callback(sub,m)
-        tsf.sub( beg, end, rtag('p',sub) if md_par else sub )
-    elif elm.name.startswith('list'):
-        tsf.sub_lines( 
-            elm[0].beg[0], elm[-1].end[0], 
-            md_proclist(tsf.buffer,elm) 
-        )
-    elif elm.name == 'quote':
-        lines = [ tsf.buffer[m.beg[0]].raw[len(m.text):] for m in elm ]
-        md_par = any([ re.match( r'^\s*$', line ) for line in lines ])
-        tsf.sub_lines( 
-            elm[0].beg[0], elm[-1].end[0], 
-            rtag('blockquote',nxp.process( 
-                parser, md_callback, 
-                nxp.ListBuffer(lines)
-            ),sep='\n')
-        )
-        md_par = True
-    elif elm.name == 'htmlblock':
-        assert len(elm)==3, LengthError(elm)
-        assert elm[1].name == 'text', ScopeError(elm[1].name)
-        beg = elm[0].beg 
-        end = elm[-1].end
-        sub = tsf.restrict(beg,end)
-        for m in elm[1]: md_callback(sub,m)
-        tsf.sub( beg, end, sub )
-    elif elm.name == 'mathblock':
-        assert len(elm)==2, LengthError(elm)
-        tsf.protect( elm[0].beg, elm[1].end )
-    elif elm.name == 'codeblock':
-        assert len(elm)==2, LengthError(elm)
-        lang = elm[0].data[1]
-        attr = {'lang': lang} if lang else {}
-        tsf.sub_lines( 
-            elm[0].beg[0], elm[1].end[0], 
-            itag('pre',itag('code',
-                tsf.buffer.between(elm[0].end, elm[1].beg),
-                **attr
-            )) 
-        )
-    elif elm.name == 'comment':
-        tsf.protect( elm[0].beg, elm[-1].end )
-    else:
-        raise NameError(f'Unknown element: {elm.name}')
+    def _proc_list(self,buf,elm):
+        lst = md_list( self, elm.name.endswith('digit') )
+        ind = elm.get('indent')
+        it = None
+        for m in elm:
+            if m.tag == 'item':
+                it = lst.new( buf[m.beg[0]].raw[ind:] )
+            elif m.tag == 'empty':
+                it.par = True 
+            else:
+                it.append( buf[m.beg[0]].raw[ind:] )
+        return lst
+
+    def _proc_img(self,elm):
+        alt = elm['alt'].data[1]
+        if 'imgvalue' in elm:
+            val = elm['imgvalue'].data
+            att = { 'alt': alt, 'src': self._proc_value(val[0]) }
+            if len(val) > 1: att['title'] = self._proc_value(val[1])
+            return stag('img',**att)
+        else:
+            lab = elm['imglabel'].data[1]
+            return md_refimg( self, alt, lab )
+
+    def _proc_url(self,elm):
+        # body can be an image
+        body = elm['body'].data[0]
+        if isinstance(body.data,list):
+            body = self._proc_img(elm)
+        else:
+            body = body.data[0]
+
+        if 'urlvalue' in elm:
+            val = elm['urlvalue'].data
+            atr = { 'href': self._proc_value(val[0]) }
+            if len(val) > 1: atr['title'] = self._proc_value(val[1])
+            return itag('a',body,**atr)
+        else:
+            lab = elm['urllabel'].data[1]
+            return md_refurl( self, body, lab )
 
 # ------------------------------------------------------------------------
 # 3. CREATING A COMPILER
@@ -437,7 +447,7 @@ def parsefile( infile ):
 
 def compile( infile, outfile=None, wrap=html_wrapper, **kv ):
     proc = lambda t: re.sub( r'\n{2,}', '\n', t )
-    tsf = nxp.process( parser, md_callback, nxp.FileBuffer(infile) )
+    tsf = MarkdownCompiler().process( nxp.FileBuffer(infile) )
     txt = wrap( tsf.str(proc), **kv )
     if outfile: 
         with open(outfile,'w') as fh:

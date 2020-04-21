@@ -44,4 +44,4 @@ $$
     e^{i\pi} = -1
 $$
 
-Inline `x=5` and $x = a\omega$.
+Inline `x=5` and $x = a\omega$!
