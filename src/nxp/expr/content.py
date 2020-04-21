@@ -2,8 +2,9 @@
 import re
 import logging
 from typing import Pattern
-from .match import TMatch, MatchError
+from .match import TMatch
 from .base import Token
+from nxp.error import MatchError
 
 # ------------------------------------------------------------------------
 

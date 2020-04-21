@@ -1,13 +1,13 @@
 
 # Reading module
 
-The submodule [`nxp.read`](https://github.com/jhadida/nxp/tree/master/src/nxp/read) implements tools to navigate text contents and match regular expressions.
+The submodule [`nxp.io`](https://github.com/jhadida/nxp/tree/master/src/nxp/io) implements tools to navigate text contents and match regular expressions.
 
 ## Buffers and lines
 
-Within NXP, text contents is considered as a list of lines. Accordingly, the various `Buffer` objects ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/read/buffer.py)) all contain a list of `Line` objects, and implement a list interface for that member (length, iteration, random-access); so `buf[23]` returns the 24th line.
+Within NXP, text contents is considered as a list of lines. Accordingly, the various `Buffer` objects ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/io/buffer.py)) all contain a list of `Line` objects, and implement a list interface for that member (length, iteration, random-access); so `buf[23]` returns the 24th line.
 
-`Line` objects represent a single line of text **without newline** ([source](ttps://github.com/jhadida/nxp/blob/master/src/nxp/read/line.py)); in particular, newline characters do not count towards the length of a `Line` object. Upon initialization, the input text is split into 4 segments:
+`Line` objects represent a single line of text **without newline** ([source](ttps://github.com/jhadida/nxp/blob/master/src/nxp/io/line.py)); in particular, newline characters do not count towards the length of a `Line` object. Upon initialization, the input text is split into 4 segments:
 
 - newline characters (`line.eol`);
 - leading whitespace (`line.indent`);

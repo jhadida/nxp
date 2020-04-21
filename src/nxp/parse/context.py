@@ -1,17 +1,15 @@
 
 import logging
 from .match import RNode, RMatch
-from .rule import Scope, PreCheckError, PostCheckError
-from nxp import MatchError
+from .rule import Scope
+from nxp.error import MatchError, PreCheckError, PostCheckError, ParseError
 
 # ------------------------------------------------------------------------
-
-class ParseError(Exception): pass 
 
 class Context:
     """
     """
-    def __init__(self,scope,event):
+    def __init__(self,scope,event,start):
         assert isinstance(scope,dict) and 'main' in scope, \
             TypeError('Input should be a dictionary with key "main".')
         assert all([ isinstance(s,Scope) for s in scope.values() ]), \
@@ -19,7 +17,7 @@ class Context:
 
         self._event = event
         self._scope = scope
-        self._reset()
+        self._reset(start)
 
         # create dedicated channels
         event.create('match')
@@ -30,10 +28,11 @@ class Context:
 
         logging.debug(f'[Context] Initialized ({len(self._scope)} scopes).')
 
-    def _reset(self):
+    def _reset(self,start):
         self._node = RNode('main')
         self._hist = []
         self._last = None
+        self.open(start)
         return self
 
     # properties
@@ -130,18 +129,19 @@ class Context:
 
     def open( self, name ):
         assert name in self._scope, KeyError(f'Scope not found: "{name}"')
-        self._node = self._node.add_child(name)
-        self.publish( 'open', node=self._node )
+        if name != self.scopename:
+            self._node = self._node.add_child(name)
+            self.publish( 'open', node=self._node )
         return self
 
     def close( self, n=1 ):
-        assert self.depth >= n, RuntimeError('Cannot close main scope.')
+        assert self.depth >= n, RuntimeError(f'Cannot close main scope (in scope: {self.scopename}).')
         self.publish( 'close', node=self._node )
         self._node = self._node.ancestor(n)
         return self
 
     def swap( self, name ):
-        assert self.depth >= 1, RuntimeError('Cannot swap main scope.')
+        assert self.depth >= 1, RuntimeError(f'Cannot swap main scope to {name}.')
         self.publish( 'swap', node=self._node, target=name )
         self._node.name = name
         return self

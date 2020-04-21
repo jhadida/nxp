@@ -9,6 +9,7 @@ class _Fuse:
     # cursor without changing its position
     MAX_ATTEMPTS = 1000
 
+    __slots__ = ('_pos','_num')
     def __init__(self,pos):
         self._pos = pos
         self._num = 0
@@ -28,20 +29,26 @@ class Parser:
     """
     Implement matching logic between Cursor and Context.
     """
-    def __init__( self, scope ):
+    __slots__ = ('_evt','_ctx','_chk')
+    def __init__( self, scope, start='main', end=None ):
         self._evt = Hub()
-        self._ctx = Context(scope,self._evt)
+        self._ctx = Context( scope, self._evt, start )
+        self._chk = (start,end)
 
     @property
     def context(self): return self._ctx
+    @property
+    def start(self): return self._chk[0]
+    @property
+    def end(self): return self._chk[1]
 
     def reset(self):
         self._evt = Hub()
-        self._ctx._reset()
+        self._ctx._reset(self.start)
         return self
 
     def clone(self):
-        return Parser( self._ctx._scope )
+        return Parser( self._ctx._scope, self.start, self.end )
 
     # modify strictness
     def scope(self,name):
@@ -67,24 +74,25 @@ class Parser:
         fuse = _Fuse(cur.pos)
         while not cur.eof:
             
-            # notify about EOL/BOL
-            if cur.eol:
-                self._ctx.publish('eol')
-                cur.nextline()
-                continue 
-            elif cur.bol: 
-                self._ctx.publish('bol')
-
-            # match rules
+            if cur.bol: 
+                self._ctx.publish('bol',pos=cur.pos)
+            
             if not self._ctx.match(cur):
                 cur.nextchar()
 
-            # update fuse
+            if cur.eol:
+                self._ctx.publish('eol',pos=cur.pos)
+                cur.nextline()
+            
             fuse.update(cur.pos)
 
-        # check that context is in main state
+        # check end context
         scope = self._ctx.scopename
-        assert scope == 'main', RuntimeError(f'Parsing should end in main scope, but ended in scope "{scope}" instead.')
+        check = self.end
+        assert check is None or scope == check, \
+            RuntimeError(f'Parsing should end in scope "{check}", but ended in scope "{scope}" instead.')
+
+        
         
         return self._ctx.root
  

@@ -21,13 +21,11 @@ Sentence with \` escaped \[characters]( \$and\).
     1. be parsed
 
 > Blockquote
+>
 > > Nested one
 
- | table
- | <br> not parsed
-
 ![image](foo/bar.jpg "Title")
-[![](foo/bar.jpg)][]
+[![](foo/bar.jpg BarBar)][]
 [link][12]
 
   [12]: example.com "Super site" ignored

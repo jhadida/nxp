@@ -15,12 +15,20 @@ class RMatch:
     """
     __slots__ = ('rule','match','text','saved')
     
-    def __init__(self,r,m,t,s=None):
+    def __init__(self,r,m,t,s):
         self.rule = r 
         self.text = t
         self.match = m
         self.saved = s
         logging.debug(f'[RMatch] Initialized (Rule#{r._id}).')
+
+    def clone(self):
+        return RMatch(
+            self.rule, 
+            self.match,
+            self.text, 
+            self.saved  
+        )
 
     def __getitem__(self,key): return self.saved[key]
     def __contains__(self,key): return key in self.saved
@@ -114,7 +122,6 @@ class RNode:
 
     def show(self,*arg,**kv):
         print(self.str(*arg,**kv))
-        return self
 
     def __str__(self):
         return self.str()

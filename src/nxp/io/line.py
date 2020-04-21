@@ -1,7 +1,7 @@
 
 import re
 from .util import rstrip, rstripn, lstripn
-from .charset import white
+from nxp.charset import white
 
 # regular expressions used to parse lines of text
 #_segline = re.compile( r'^(?P<pre>[' + white + r']*)(?P<txt>.*)(?P<pst>[' + white + r']*)$' )
@@ -31,6 +31,7 @@ class Line:
         self._off = offset
 
         # check invalid EOLs
+        if len(self._eol) == 0: self._eol = '\n'
         if _chkeol.fullmatch(self._eol) is None:
             raise ValueError('Bad end-of-line')
 

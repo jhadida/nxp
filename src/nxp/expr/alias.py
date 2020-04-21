@@ -66,12 +66,6 @@ def Link():
 # see: https://www.regular-expressions.info/email.html
 def Email():
     return Regex( r"[a-z0-9][a-z0-9._%+-]*@([a-z0-9-]+\.)+[a-z]{2,}", case=False )
-
-def XML():
-    value = String().append( r'(\w+)' )
-    attr = Seq( [r'\s+(\w+)', Seq([ r'\s*=\s*', value ])], skip=1 )
-    tag = Seq( [r'<(\w+)', Any(attr), r'\s*/?>'], skip=1 )
-    return Either( tag, r'</(\w+)\s*>' )
     
 def Fenced( boundary, esc=True, empty=True ):
     if isinstance(boundary,str):
@@ -100,3 +94,24 @@ def DqString( empty=True ):
 
 def String( empty=True ):
     return Either( SqString(empty), DqString(empty) )
+
+# ------------------------------------------------------------------------
+
+def XML_attr():
+    value = String().append( r'(\w+)' )
+    return Seq( [r'\s+(\w+)', Seq([ r'\s*=\s*', value ])], skip=1 )
+
+def XML_open( self=False ):
+    end = r'\s*/>' if self else r'\s*>'
+    return Seq( [r'<(\w+)', Any(XML_attr()), end], skip=1 )
+
+def XML_self():
+    return XML_open(True)
+
+def XML_close():
+    return Regex( r'</(\w+)\s*>' )
+
+def XML_any():
+    end = r'\s*/?>'
+    tag = Seq( [r'<(\w+)', Any(XML_attr()), end], skip=1 )
+    return Either( tag, XML_close() )

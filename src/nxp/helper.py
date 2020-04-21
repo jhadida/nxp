@@ -1,8 +1,10 @@
 
 import re 
 from .ruledef import make_rule
-from nxp import Cursor, Scope, Parser, ListBuffer, FileBuffer
+from nxp import Cursor, ListBuffer, FileBuffer, Transform, Scope, Parser
 
+# ------------------------------------------------------------------------
+# EXPRESSION
 # ------------------------------------------------------------------------
 
 def make_cursor( c, r2l=False ):
@@ -25,6 +27,8 @@ def findall( tok, text, r2l=False ):
 def finditer( tok, text, r2l=False ):
     return tok.finditer(make_cursor(text,r2l))
 
+# ------------------------------------------------------------------------
+# PARSER
 # ------------------------------------------------------------------------
 
 def make_scope( name, sub, pfx='', out=None ):
@@ -108,11 +112,13 @@ def make_parser(p):
     about the requirements for field names and values, and _mkrule for 
     details about rule definitions.
     """
-    if isinstance(p,dict):
+    if isinstance(p,Parser):
+        return p.reset()
+    elif isinstance(p,dict):
         # create scope dictionary
         scope = make_scope( 'main', p['lang'] )
 
-        # apply options
+        # strict scope processing
         strict = p.setdefault('strict',[])
         if 'nonstrict' in p:
             strict = [ name for name in scope.keys() if name not in p['nonstrict'] ]
@@ -121,10 +127,11 @@ def make_parser(p):
         for name in strict: 
             scope[name].strict = True
 
-        # create parser
-        return Parser(scope)
-    elif isinstance(p,Parser):
-        return p 
+        # start/end scopes
+        start = p.setdefault('start','main')
+        end = p.setdefault('end',None)
+
+        return Parser(scope,start,end)
     else:
         raise TypeError(f'Unexpected type: {type(p)}')
 
@@ -136,3 +143,42 @@ def parselines( parser, lines, r2l=False ):
 
 def parse( parser, text, r2l=False ):
     return parselines( parser, text.splitlines(True), r2l )
+
+# ------------------------------------------------------------------------
+# PROCESSING
+# ------------------------------------------------------------------------
+
+def process( parser, callback, buffer, first=(0,0), last=None, **kv ):
+    """
+    Parse input buffer, and invoke callback for each matched element.
+
+    Callback function should match the following prototype:
+        callback( transform, element )
+    where 
+        'transform' is a Transform object, and 
+        'element' is a RNode object.
+    """
+    if last is None: last = buffer.lastpos 
+    tsf = Transform( buffer, first, last )
+    res = make_parser(parser).parse( buffer.cursor(*first) )
+    for elm in res: callback(tsf,elm,**kv)
+    assert len(tsf) == 0 or tsf[-1].end <= last, RuntimeError('Last position exceeded.')
+    return tsf
+
+def procfile( parser, callback, infile, r2l=False, **kv ):
+    """
+    Process input file using callback function to transform every match 
+    in the "main" scope found during parsing. 
+    
+    The callback function should be:
+        callback( transform, element )
+    """
+    buf = FileBuffer(infile,r2l)
+    return process( parser, callback, buf, **kv )
+
+def proctxt( parser, callback, text, r2l=False, **kv ):
+    """
+    Same as above, but process input text.
+    """
+    buf = ListBuffer(text.splitlines(True),r2l)
+    return process( parser, callback, buf, **kv )

@@ -1,10 +1,11 @@
 
 import math
 import logging
-from .match import TMatch, MatchError
+from .match import TMatch
 from .base import Token
-from .util import TokenSet
 from .content import conv
+from .util import TokenSet
+from nxp.error import MatchError
 
 # ------------------------------------------------------------------------
 

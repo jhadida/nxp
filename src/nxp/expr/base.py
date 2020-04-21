@@ -1,6 +1,6 @@
 
 import logging
-from .match import TMatch, MatchError
+from .match import TMatch
 
 # ------------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ class Token:
     # capture match with an explicit name
     @property
     def name(self):
-        return self._name 
+        return self._name
 
-    def capture(self,name):
+    def save(self,name):
         self._name = name
         return self
 

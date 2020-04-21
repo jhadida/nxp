@@ -2,10 +2,8 @@
 import logging
 from itertools import count
 from .match import RMatch
-from nxp import Token, TMatch, Regex
-
-class PreCheckError(Exception): pass
-class PostCheckError(Exception): pass
+from nxp.expr import Token, TMatch, Regex
+from nxp.error import PreCheckError, PostCheckError
 
 # ------------------------------------------------------------------------
 

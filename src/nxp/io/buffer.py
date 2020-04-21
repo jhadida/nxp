@@ -60,7 +60,7 @@ class _Buffer:
         return self._line[pos[0]][0:pos[1]]
     def after(self,pos):
         return self._line[pos[0]][pos[1]:]
-    def between(self,pos1,pos2,nl='\n'):
+    def lbetween(self,pos1,pos2):
         L1, C1 = pos1 
         L2, C2 = pos2
         L, C = L1, C1
@@ -71,8 +71,9 @@ class _Buffer:
             L += 1
             C = 0
         out.append(self._line[L][C:C2])
-
-        return nl.join(out)
+        return out
+    def between(self,pos1,pos2,nl='\n'):
+        return nl.join(self.lbetween(pos1,pos2))
     def distance(self,pos1,pos2):
         L1, C1 = pos1
         L2, C2 = pos2
@@ -80,6 +81,7 @@ class _Buffer:
         out = []
         while L1 <= L2: 
             out.append(len(self._line[L1]))
+        return sum(out)
 
     def show_around(self,pos,w=13):
         lnum,c = pos 

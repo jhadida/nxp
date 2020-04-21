@@ -3,7 +3,7 @@
 
 ## Character sets
 
-[source](https://github.com/jhadida/nxp/blob/master/src/nxp/read/charset.py)
+[source](https://github.com/jhadida/nxp/blob/master/src/nxp/io/charset.py)
 
 Describe `unirange`.
 

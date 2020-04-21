@@ -1,6 +1,7 @@
 
 from collections import defaultdict
-from nxp import Rule, Validate, Process, ParseError
+from nxp.parse import Rule, Validate, Process
+from nxp.error import ParseError
 
 # ------------------------------------------------------------------------
 

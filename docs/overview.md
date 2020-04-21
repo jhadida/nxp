@@ -12,10 +12,11 @@ These tasks involve many components within NXP, which are described below.
 
 To give you an idea of the components involved in matching/parsing, and how they are designed to interact with each-other, here is what NXP contains at a glance (more details in the "Reference" section):
 
-- [`nxp.read`](https://github.com/jhadida/nxp/tree/master/src/nxp/read) implements tools to navigate text contents and match regular expressions.
+- [`nxp.io`](https://github.com/jhadida/nxp/tree/master/src/nxp/io) implements tools to navigate text contents and match regular expressions.
     - `Line`: represents a single line in a text file or string.
     - `Buffer`: a list of `Line` objects, representing a file or multiline string.
     - `Cursor`: a position `(line,char)` and a reference to the corresponding `Buffer`.
+    - `Transform`: a text buffer used to facilitate substitutions.
 
 - [`nxp.expr`](https://github.com/jhadida/nxp/tree/master/src/nxp/expr) implements tools to define text expressions with Python objects (similar to [pyparsing](https://github.com/pyparsing/pyparsing)).
     - `Token`: an object capable of matching/searching text patterns for a given `Cursor`.

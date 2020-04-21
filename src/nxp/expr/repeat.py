@@ -1,12 +1,11 @@
 
 import logging
 from copy import deepcopy
-from itertools import combinations
-from collections import namedtuple
-from .match import TMatch, MatchError
+from .match import TMatch
 from .base import Token
-from .util import TokenChain
 from .content import conv
+from .util import TokenChain
+from nxp.error import MatchError
 
 # ------------------------------------------------------------------------
 
@@ -103,7 +102,7 @@ def mulparse(mul):
     out = sorted( out, key = lambda x: x[0] )
 
     # check for overlaps
-    for a,b in combinations(out,2):
+    for a,b in zip(out,out[1:]):
         if overlap(a,b):
             raise ValueError(f'Overlapping multiplicities {a} and {b}.')
 

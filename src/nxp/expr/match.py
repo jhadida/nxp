@@ -1,8 +1,6 @@
 
 import logging
 
-class MatchError(Exception): pass
-
 # ------------------------------------------------------------------------
 
 class TMatch:
@@ -21,7 +19,8 @@ class TMatch:
         self.text = text
 
     @property 
-    def pattern(self): return str(self.tok)
+    def pattern(self): 
+        return str(self.tok) if self.tok else None
 
     def isvalid(self):
         return self.end >= self.beg

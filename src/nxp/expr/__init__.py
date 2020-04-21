@@ -1,6 +1,6 @@
 
 from .base import Token
-from .match import TMatch, MatchError
+from .match import TMatch
 from .content import Regex
 from .compose import *
 from .repeat import *
