@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 if [ -n "$1" ]; then
-    Token=.token-pypi-test.enc
+    Token=.token-test.enc
     Args=(
         --skip-existing
         --repository-url 'https://test.pypi.org/legacy/'
     )
 else
-    Token=.token-pypi.enc
+    Token=.token.enc
     Args=()
 fi
 
