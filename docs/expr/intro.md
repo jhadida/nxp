@@ -89,11 +89,11 @@ The `skip` argument can be used to allow items to be skipped, and `maxskip` limi
 
 > **Note:** strings in binary operations are converted to `Regex`.
 
-## Multiplicity
+## Repetition
 
 The previous sections showed how to define contents tokens, and how to combine them together in order to form complex patterns to be matched. The last important aspect of `Token` objects is their _multiplicity_, which refers to the number of contiguous repetitions allowed or expected to be found (by default 1, of course).
 
-Multiplicities in NXP are represented by lists of tuples ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/multi.py)):
+Multiplicities in NXP are represented by lists of tuples ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/repeat.py)):
 ```
 [ (L1,U1), (L2,U2), ... ]
 ```
