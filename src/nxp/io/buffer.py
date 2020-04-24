@@ -95,8 +95,8 @@ class _Buffer:
         else:
             b = max(0,c-w)
             e = min(c+w,len(L))
-
-        s = L[b:e]
+        
+        s = ' ' if b==e else L[b:e]
         x = list(' ' * len(s))
         x[c-b] = '^'
         return s, ''.join(x)
