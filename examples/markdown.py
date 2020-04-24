@@ -320,7 +320,7 @@ class MarkdownCompiler:
             if len(elm)==0: return
             beg = elm[0].beg
             end = elm[-1].end
-            sub = tsf.restrict(beg,end)
+            sub = tsf.restricted(beg,end)
             for m in elm: self._callback(sub,m)
             tsf.sub( beg, end, md_tag('p',sub) if self._par else sub )
 
@@ -329,7 +329,7 @@ class MarkdownCompiler:
             assert elm[1].name == 'text', ScopeError(elm[1].name)
             beg = elm[0].beg 
             end = elm[-1].end
-            sub = tsf.restrict(beg,end)
+            sub = tsf.restricted(beg,end)
             for m in elm[1]: self._callback(sub,m)
             tsf.sub( beg, end, sub )
 

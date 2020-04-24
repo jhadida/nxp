@@ -40,6 +40,18 @@ class Transform:
         for a,b in zip(self._sub,self._sub[1:]):
             assert a < b, RuntimeError('Bad substitution order.')
 
+    def restrict(self,beg,end,w=0):
+        self._check_range(beg,end)
+        if isinstance(w,int): w = (w,w)
+        bl,bc = beg 
+        el,ec = end 
+        self._beg = (bl,bc+w[0])
+        self._end = (el,ec-w[1])
+        return self
+
+    def clone(self):
+        return Transform( self._buf, self._beg, self._end )
+
     def str(self,proc=None):
         self.check()
 
@@ -76,12 +88,8 @@ class Transform:
     def _check_lines(self,lbeg,lend):
         assert self._beg[0] <= lbeg <= lend <= self._end[0], ValueError(f'Bad lines: {self._beg[0]} <= {lbeg} <= {lend} <= {self._end[0]}')
 
-    def restrict(self,beg,end,w=0):
-        self._check_range(beg,end)
-        if isinstance(w,int): w = (w,w)
-        bl,bc = beg 
-        el,ec = end 
-        return Transform( self._buf, (bl,bc+w[0]), (el,ec-w[1]) )
+    def restricted(self,beg,end,w=0):
+        return self.clone().restrict(beg,end,w)
 
     def include(self,beg,end,fpath,r2l=False):
         self._check_range(beg,end)

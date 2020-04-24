@@ -2,7 +2,7 @@
 import re 
 import html 
 from os import path as op
-from urllib import parse as url
+from urllib.parse import quote_plus as urlenc
 
 # ------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ def _proc_htmlenc(x,quote=True):
     return html.escape(x,quote)
 
 def _proc_urlenc(x):
-    return url.quote_plus(x)
+    return urlenc(x)
 
 def _proc_tab2space(x,n=2):
     return x.replace('\t',' '*n)
