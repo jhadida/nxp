@@ -7,10 +7,15 @@ sys.path.insert(0,op.realpath('../src'))
 import nxp
 
 # ------------------------------------------------------------------------
-# 1. LANGUAGE DEFINITION
+# 1.    LANGUAGE DEFINITION
+# ------------------------------------------------------------------------
+# 1.1.  Pattern definitions
+# 
+#       The following patterns capture common Markdown elements, 
+#       and are used below with parsing rules.
 # ------------------------------------------------------------------------
 
-from nxp import Seq, Rep, Either, String, Fenced, XML_self, XML_open, XML_close
+from nxp import Seq, Rep, Either, String, Fenced
 
 # list items
 list_item = r'^(\s*[-+*]\s*)'
@@ -62,6 +67,26 @@ ref = Seq([
 ])
 
 # ------------------------------------------------------------------------
+# 1.2.  Parser definition
+#
+#       The language is defined around two main scopes: main and text.
+#       The text scope should correspond to a block of text, which may
+#       contain links, images, inline code/math, and markup. 
+#       Other block contents like item lists, blockquotes, and display 
+#       code/math, are in separate scopes.
+#       Definition of a "ghost" scope for HTML is needed to allow parsing
+#       of the fenced contents. 
+#
+#       Limitations:
+#       - indented codeblocks are not supported (by choice)
+#       - blockquotes can have arbitrary indentation at the start
+#       - multiline list items are not lazy (need to be indented)
+#       - quotes and subquotes must be separated from text by a newline
+#       - quotes separated by a newline are not merged
+#       - table markup is not supported (use HTML)
+# ------------------------------------------------------------------------
+
+from nxp import XML_self, XML_open, XML_close
 
 def saveIndent(c,x,m): 
     x.set('indent',len(m.text))
@@ -73,17 +98,8 @@ def saveTag(c,x,m):
     x.set('tag',m.data[0].data[1])
 def validTag(c,x,m):
     return m.data[1] == x.get('tag')
-def checkEOF(c,x,m):
-    if c.eof:
-        x.save(m)
-        x.close()
-
-# limitations:
-#   blockquotes can have arbitrary intentation at the start
-#   multiline list items are not lazy (need to be indented)
-#   quotes and subquotes need to be separated from text by a newline
-#   quotes separated by a newline are not merged
-#   tables are not supported
+def textEOF(c,x,m):
+    if c.eof: x.save(m)
 
 lang = {
     'main': [
@@ -106,7 +122,7 @@ lang = {
         [ r'^\s*$', 'save', 'close' ],
         [ list_item, ('next','list.item'), ('call',saveIndent), ('goto','eol'), ('tag','item') ],
         [ list_digit, ('next','list.digit'), ('call',saveIndent), ('goto','eol'), ('tag','item') ],
-        [ r'[^\[_*`$\\<!]+', ('call',checkEOF) ], # optimization
+        [ r'[^\[_*`$\\<!]+', ('call',textEOF) ], # optimization
         [ bold, ('tag','bold') ], # bold
         [ emph, ('tag','emph') ], # emphasis
         [ r'\\[(){}\[\]*_`#+-.!$]', ('tag','esc'), ('proc',lambda t: t[1:]) ], # escape
@@ -120,7 +136,7 @@ lang = {
         [ XML_close(), ('valid',validTag), 'close', 'save', 'close' ],
         [ XML_self(), ('tag','html') ], # html
         [ XML_open(), ('open','htmlblock'), ('call',saveTag), 'save' ], # html
-        [ r'.*', ('pos_after','eof'), 'save' ]
+        [ r'.*', ('pos_after','eof'), ('call',textEOF) ]
     ],
     'comment': [ [ r'-->', 'save', 'close' ] ],
     'codeblock': [ [ r'^```', 'save', 'close' ] ],
@@ -149,10 +165,14 @@ lang = {
 parser = nxp.make_parser({ 'lang': lang })
 
 # ------------------------------------------------------------------------
-# 2. PROCESSING THE RESULTS OF PARSING
+# 2.    COMPILER DEFINITION
 # ------------------------------------------------------------------------
-
-from nxp.error import ScopeError, LengthError, TagError
+# 2.1.  HTML utilities
+#
+#       The following functions generate HTML tags with attributes
+#       and contents. MathJax is included in the HTML template to
+#       support maths rendering.
+# ------------------------------------------------------------------------
 
 html5doc = """
 <!doctype html>
@@ -185,6 +205,13 @@ def itag(name,body,sep='',**kv): # inline
 def stag(name,**kv): # self-closing
     return f"<{name}{attr2str(kv)} />"
 
+# ------------------------------------------------------------------------
+# 2.2.  Utilities for delayed rendering
+#
+#       The following classes delay the text-rendering of various 
+#       components (HTML tag, Markdown URL, image, or list), which
+#       is useful e.g. for images and links that depend on a reference
+#       defined later in the text.
 # ------------------------------------------------------------------------
 
 class md_tag:
@@ -265,6 +292,14 @@ class md_list:
         return it
 
 # ------------------------------------------------------------------------
+# 2.3.  Compiler implementation
+#
+#       Parsing and compilation rely on nxp.process, which requires 
+#       a callback function to process each node / rule-match returned 
+#       by the parser.
+# ------------------------------------------------------------------------
+
+from nxp.error import ScopeError, LengthError, TagError
 
 class MarkdownCompiler:
     def __init__(self):
@@ -307,11 +342,11 @@ class MarkdownCompiler:
                 tsf.sub( beg, end, itag('strong',elm.data[0].data[1]) )
             elif tag == 'emph':
                 tsf.sub( beg, end, itag('emph',elm.data[0].data[1]) )
-            elif tag == 'code':
+            elif tag == 'code': # inline code
                 tsf.sub( beg, end, itag('code',elm.data[1]) )
-            elif tag == 'math':
+            elif tag == 'math': # inline math
                 tsf.protect( beg, end )
-            elif tag == 'html':
+            elif tag == 'html': # self-closed HTML tag
                 tsf.protect(beg,end)
             else:
                 raise TagError(tag)
@@ -434,15 +469,15 @@ class MarkdownCompiler:
             return md_refurl( self, body, lab )
 
 # ------------------------------------------------------------------------
-# 3. CREATING A COMPILER
+# 2.4.  User-level API
+#
+#       The following functions can be imported and called to parse
+#       or compile a Markdown file.
 # ------------------------------------------------------------------------
 
 import re
 
-def parse( text ):
-    return nxp.parse( parser, text )
-
-def parsefile( infile ):
+def parse( infile ):
     return nxp.parsefile( parser, infile )
 
 def compile( infile, outfile=None, wrap=html_wrapper, **kv ):

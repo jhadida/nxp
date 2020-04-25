@@ -129,9 +129,9 @@ def make_parser(p):
 
         # start/end scopes
         start = p.setdefault('start','main')
-        end = p.setdefault('end',None)
+        finish = p.setdefault('finish',None)
 
-        return Parser(scope,start,end)
+        return Parser(scope,start,finish)
     else:
         raise TypeError(f'Unexpected type: {type(p)}')
 

@@ -30,17 +30,17 @@ class Parser:
     Implement matching logic between Cursor and Context.
     """
     __slots__ = ('_evt','_ctx','_chk')
-    def __init__( self, scope, start='main', end=None ):
+    def __init__( self, scope, start='main', finish=None ):
         self._evt = Hub()
         self._ctx = Context( scope, self._evt, start )
-        self._chk = (start,end)
+        self._chk = (start,finish)
 
     @property
     def context(self): return self._ctx
     @property
     def start(self): return self._chk[0]
     @property
-    def end(self): return self._chk[1]
+    def finish(self): return self._chk[1]
 
     def reset(self):
         self._evt = Hub()
@@ -48,7 +48,7 @@ class Parser:
         return self
 
     def clone(self):
-        return Parser( self._ctx._scope, self.start, self.end )
+        return Parser( self._ctx._scope, self.start, self.finish )
 
     # modify strictness
     def scope(self,name):
@@ -86,11 +86,11 @@ class Parser:
             
             fuse.update(cur.pos)
 
-        # check end context
+        # check finish context
         scope = self._ctx.scopename
-        check = self.end
-        assert check is None or scope == check, \
-            RuntimeError(f'Parsing should end in scope "{check}", but ended in scope "{scope}" instead.')
+        finish = self.finish
+        assert finish is None or scope == finish, \
+            RuntimeError(f'Parsing should end in scope "{finish}", but ended in scope "{scope}" instead.')
 
         
         

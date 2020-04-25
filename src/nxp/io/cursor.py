@@ -150,6 +150,10 @@ class Cursor:
         return pat.search( self._line.raw, self._char )
 
     # raise exceptions
+    def show(self,width=13):
+        s,x = self._buf.show_around(self.pos)
+        print('\n'.join([s,x]))
+
     def error(self, msg, width=13, exc=RuntimeError):
         p = self.pos
         s,x = self._buf.show_around(p)
