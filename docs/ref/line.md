@@ -1,46 +1,40 @@
 
-# Line `nxp.parser.line`
+# Line
 
-Line objects segment each line of text into:
+Line objects represent a single line of text in a [`Buffer`](ref/buffer). 
+They are initialised with a string, and with the corresponding line number and character offset (provided by the buffer).
 
-- Indent
-- Text
-- Post
-- EOL
+## Segmentation
 
+At initialization, the newline characters are stripped from the input string.
+The remaining string is stored as property `line.raw`, and the striped newline characters are stored separately as `line.nl`.
+Then, the raw string is segmented by locating two "special" positions:
 
-## Old description
+1. the index of the first non-whitespace character, accessed via `line.bot` (beginning-of-text);
+2. the index of the last non-whitespace character, accessed via `line.eot` (end-of-text).
 
-`Line` objects segment each line of text in **four parts**:
-```py
-L = Line( '  example \n', lineno, offset )
+These two positions delineate three segments of the `raw` string (each of which may be empty):
 
-    # '  example \n'
-    #    1      23
-    #
-    # 1: pre
-    # 2: txt
-    # 3: eol
-```
+1. segment `line.indent`, between positions `0` and `line.bot`;
+2. segment `line.text`, between positions `line.bot` and `line.eot`;
+3. segment `line.post`, between positions `line.eot` and the end of `line.raw`. 
 
-The properties of a `Line` are:
+## Contents and indexing
 
-| Property | Description |
-|---|---|
-| `lineno` | line index in buffer |
-| `offset` | offset of first character from start of buffer |
-| `indent` | substring until position 1 |
-| `text` | substring between positions 1 and 2 |
-| `post` | substring between positions 2 and 3 |
-| `eol` | substring after position 3 |
+As mentioned in the previous section, the newline characters are stripped from the input string upon initialization, which has the following consequences:
 
-If `eol` is empty, then this is the last line of the buffer.
+- the "raw" contents of a line, accessed via `line.raw`, exclude newline characters;
+- square-bracket indexing is implemented, such that `line[k]` returns character at index `k` **in the raw string** (i.e. excluding newline characters);
+- the length of a line, obtained with `len(line)`, therefore corresponds to the length of the raw string;
+- the entire string including newline characters can be obtained via property `line.full`.
 
- - Position object has a line and char number, and methods to increment either. They can be compared to compute the distance.
- - Buffer object contains all lines (may be more complicated in the future to implement streams).
- - Cursor object has reference to Parser, a Position, and the current Line is cached. It also contains flags: `bof/eof` (file), `bol/eol` (line), `boi/eoi` (indent), `bot/eot` (text), `bop/eop` (post), `bow/eow` (word). These are set by comparing current char position to Line segments. It implements methods such as: `is_indent`, `is_text`, `is_post`.
+The rationale behind this design choice is that newline characters are (unfortunately) platform-specific, and do not actually contribute to the text contents. 
+This is a purely logical stance, and has no practical consequence for the user. In particular the representation of positions within the buffer as `(line,col)` tuples is unaffected by this choice.
 
-Not sure yet:
- - Namespace object is basically a dictionary.
- - Context object is a list of namespaces. Three namespaces IDs are reserved: global, stack and local. Global and local are scalar Namespace, inherited is a stack of Namespace.
+For the developper however, this has two main consequences:
+
+- the `offset` property, calculated in a rolling manner by the buffer, **cannot** be used for low-level file operations like `fseek`;
+- the distance between positions, obtained with `buffer.distance(pos1,pos2)`, excludes all newline characters from the character count.
+
+Although this can be seen as an annoyance, the benefit is that distances and offsets within the parser logic are actually comparable across platforms.
 

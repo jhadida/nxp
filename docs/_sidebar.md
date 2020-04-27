@@ -25,7 +25,7 @@
 
 * Reference
 
-  * [Reading](ref/read)
+  * [Input/Output](ref/io)
   * [Expression](ref/expr)
   * [Parsing](ref/parse)
   * [Language](ref/lang)

@@ -22,8 +22,9 @@ list_item = r'^(\s*[-+*]\s*)'
 list_digit = r'^(\s*\d\.\s*)'
 
 # emphasis
-emph = Either( Fenced('*',empty=False), Fenced('_',empty=False) )
-bold = Either( r'\*\*(((\\\*)|[^*])+)\*\*', r'__(((\\_)|[^_])+)__' )
+bold = Fenced('*',empty=False)
+emph = Fenced('_',empty=False)
+boldit = r'_\*(((\\\*)|(\\_)|[^*_])+)\*_'
 
 # other
 code = Fenced('`')
@@ -78,6 +79,7 @@ ref = Seq([
 #       of the fenced contents. 
 #
 #       Limitations:
+#       - italic / bold works slightly differently
 #       - indented codeblocks are not supported (by choice)
 #       - blockquotes can have arbitrary indentation at the start
 #       - multiline list items are not lazy (need to be indented)
@@ -123,6 +125,7 @@ lang = {
         [ list_item, ('next','list.item'), ('call',saveIndent), ('goto','eol'), ('tag','item') ],
         [ list_digit, ('next','list.digit'), ('call',saveIndent), ('goto','eol'), ('tag','item') ],
         [ r'[^\[_*`$\\<!]+', ('call',textEOF) ], # optimization
+        [ boldit, ('tag','boldit') ], # bold
         [ bold, ('tag','bold') ], # bold
         [ emph, ('tag','emph') ], # emphasis
         [ r'\\[(){}\[\]*_`#+-.!$]', ('tag','esc'), ('proc',lambda t: t[1:]) ], # escape
@@ -338,10 +341,12 @@ class MarkdownCompiler:
                 tsf.sub( beg, end, self._proc_img(elm) )
             elif tag == 'url': 
                 tsf.sub( beg, end, self._proc_url(elm) )
+            elif tag == 'boldit': 
+                tsf.sub( beg, end, itag('em',itag('strong',elm.data[1])) )
             elif tag == 'bold': 
-                tsf.sub( beg, end, itag('strong',elm.data[0].data[1]) )
+                tsf.sub( beg, end, itag('strong',elm.data[1]) )
             elif tag == 'emph':
-                tsf.sub( beg, end, itag('emph',elm.data[0].data[1]) )
+                tsf.sub( beg, end, itag('em',elm.data[1]) )
             elif tag == 'code': # inline code
                 tsf.sub( beg, end, itag('code',elm.data[1]) )
             elif tag == 'math': # inline math

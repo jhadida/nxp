@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-if [ -n "$1" ]; then
+[ $# -lt 3 ] && { echo "Usage: $0 <Version> -m <Message>"; exit 1; }
+
+Version=$1
+shift
+
+TEST=0
+if (( $TEST == 1 )); then
     Token=.token-test.enc
     Args=(
         --skip-existing
@@ -20,6 +26,12 @@ Args=(
 
 # cleanup
 rm -rf build dist *.egg-info src/*.egg-info
+
+# update version
+echo "$Version" >| version.txt
+git commit -a "$@" || { echo "Failed to commit"; exit 1; }
+git tag "v$Version" "$@" || { echo "Failed to create tag"; exit 1; }
+git push --tags
 
 # rebuild
 python3 setup.py sdist bdist_wheel

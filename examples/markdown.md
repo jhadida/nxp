@@ -32,8 +32,8 @@ Sentence with \` escaped \[characters]( \$and\).
 
 ---
 
-Lorem ipsum dolor sit amet, **consectetur adipiscing** elit, sed do _eiusmod_ tempor incididunt ut labore et dolore magna aliqua. 
-Ut enim ad __minim veniam__, quis nostrud *exercitation* ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+Lorem ipsum dolor sit amet, *consectetur adipiscing* elit, sed do _eiusmod_ tempor incididunt ut labore et dolore magna aliqua. 
+Ut enim ad _*minim veniam*_, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
 
 ```py
 def foo(x):

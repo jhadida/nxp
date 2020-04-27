@@ -1,11 +1,12 @@
 
 # Advanced usage
 
-## Variables
+## Callback
 
+Custom callback functions.
 Variables can be saved at different levels.
 
-## Events
+## Event
 
 Multiple channels used during parsing:
 ```

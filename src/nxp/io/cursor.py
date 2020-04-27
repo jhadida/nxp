@@ -38,7 +38,7 @@ class Cursor:
     @property 
     def line(self): return self._line
     @property 
-    def lnum(self): return self._line.lineno
+    def lnum(self): return self._line.lnum
     @property 
     def char(self): return self._char
 
@@ -111,9 +111,9 @@ class Cursor:
     @property
     def eot(self): return self._char >= self._line.textlen
     @property 
-    def bof(self): return self._line.is_first() and self.bol
+    def bof(self): return self.bol and self._buf.is_first(self._line)
     @property 
-    def eof(self): return self._line.is_last() and self.eol
+    def eof(self): return self.eol and self._buf.is_last(self._line)
 
     # move the cursor at key points
     def goto_bol(self): 

@@ -14,10 +14,6 @@ class _Buffer:
     def __init__(self):
         self._r2l = False
         self._line = []
-    
-    def __len__(self): return len(self._line)
-    def __iter__(self): return iter(self._line)
-    def __getitem__(self,key): return self._line[key]
 
     def _readlines(self,obj,r2l):
         offset = 0
@@ -28,12 +24,23 @@ class _Buffer:
                 self._line.append(Line(line,lnum,offset))
             offset += len(line)
 
-        # mark last line stored to be the true last (no buffering)
-        self._line[-1].make_last()
         self._r2l = r2l
 
         # notify
         logging.info(f'Buffer initialized ({len(self)} lines).')
+
+    def write(self,filename):
+        with open(filename,'w') as fh:
+            fh.writelines( L.full for L in self._line )
+
+    def __len__(self): return len(self._line)
+    def __iter__(self): return iter(self._line)
+    def __getitem__(self,key): return self._line[key]
+
+    def is_first(self,line): 
+        return line.lnum == 0
+    def is_last(self,line): 
+        return line.lnum == len(self)-1
 
     @property
     def nlines(self): return len(self)
@@ -45,6 +52,9 @@ class _Buffer:
             return last.offset + len(last)
         else:
             return 0
+    
+    # ----------  =====  ----------
+    # Position-related
 
     @property
     def lastpos(self):
@@ -58,8 +68,10 @@ class _Buffer:
 
     def until(self,pos):
         return self._line[pos[0]][0:pos[1]]
+
     def after(self,pos):
         return self._line[pos[0]][pos[1]:]
+
     def lbetween(self,pos1,pos2):
         L1, C1 = pos1 
         L2, C2 = pos2
@@ -72,16 +84,19 @@ class _Buffer:
             C = 0
         out.append(self._line[L][C:C2])
         return out
+
     def between(self,pos1,pos2,nl='\n'):
         return nl.join(self.lbetween(pos1,pos2))
+
     def distance(self,pos1,pos2):
         L1, C1 = pos1
         L2, C2 = pos2
-        
-        out = []
-        while L1 <= L2: 
-            out.append(len(self._line[L1]))
-        return sum(out)
+        off1 = self._line[L1].offset
+        off2 = self._line[L2].offset
+        return (off2+C2) - (off1+C1)
+
+    # ----------  =====  ----------
+    # Display
 
     def show_around(self,pos,w=13):
         lnum,c = pos 
@@ -120,10 +135,6 @@ class _Buffer:
         x = list(' ' * len(s))
         for k in range(c1,c2): x[k-b] = '-'
         return s, ''.join(x)
-        
-    def write(self,filename):
-        with open(filename,'w') as fh:
-            fh.writelines( L.full for L in self._line )
 
 # ------------------------------------------------------------------------
 

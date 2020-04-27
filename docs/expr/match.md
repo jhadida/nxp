@@ -22,7 +22,7 @@ nxp.findall( token, text )   -> [ TMatch ]
 nxp.finditer( token, text )  -> generator( TMatch )
 ```
 
-> More info about the cursor object [here](ref/read?id=cursor-and-position).
+> More info about the cursor object [here](ref/io?id=cursor-and-position).
 
 ## Output
 

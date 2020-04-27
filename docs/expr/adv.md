@@ -13,7 +13,7 @@ Describe `unirange`.
 
 Top-level functions for matching have a `r2l` keyword argument (so does `nxp.make_cursor`).
 
-Underlying [buffer option](http://localhost:3000/#/ref/read?id=right-to-left-text).
+Underlying [buffer option](ref/io?id=right-to-left-text).
 
 ## Token data
 

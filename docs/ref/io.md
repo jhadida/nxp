@@ -1,7 +1,10 @@
 
-# Reading module
+# Input/Output module
 
-The submodule [`nxp.io`](https://github.com/jhadida/nxp/tree/master/src/nxp/io) implements tools to navigate text contents and match regular expressions.
+The submodule [`nxp.io`](https://github.com/jhadida/nxp/tree/master/src/nxp/io) implements tools to navigate text contents, match regular expressions, and perform substitutions within a text.
+
+> Detailed information about the components here:
+> [Line](ref/line), [Buffer](ref/buffer), [Cursor](ref/cursor), [Transform](ref/transform)
 
 ## Buffers and lines
 
@@ -9,7 +12,7 @@ Within NXP, text contents is considered as a list of lines. Accordingly, the var
 
 `Line` objects represent a single line of text **without newline** ([source](ttps://github.com/jhadida/nxp/blob/master/src/nxp/io/line.py)); in particular, newline characters do not count towards the length of a `Line` object. Upon initialization, the input text is split into 4 segments:
 
-- newline characters (`line.eol`);
+- newline characters (`line.nl`);
 - leading whitespace (`line.indent`);
 - trailing whitespace (`line.post`);
 - remaining text (`line.text`).
@@ -45,3 +48,7 @@ cur.match(r)        match regex from current position
 cur.search(r)       search rest of line from current position
 ```
 Note that these methods do NOT update the cursor's location.
+
+## Transform and substitutions
+
+To-do.
