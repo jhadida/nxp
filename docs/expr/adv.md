@@ -19,3 +19,16 @@ Underlying [buffer option](ref/io?id=right-to-left-text).
 
 - Regex saves the [match object](https://docs.python.org/3/library/re.html#match-objects) from the Python reference library.
 - Sets and sequences save a list of underlying `TMatch` objets.
+
+
+## Operations
+
+```
+a | b | c = Any( [a,b,c] )      One required, more allowed
+a ^ b ^ c = Xor( [a,b,c] )      One and only one required
+a & b & c = All( [a,b,c] )      All required, in any order
+
+a + b + c = Seq( [a,b,c] )      All required, in order
+```
+
+> **Note:** strings in binary operations are converted to `Regex`.

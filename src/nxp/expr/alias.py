@@ -6,7 +6,7 @@ Define aliases for expressions with specific content or options.
 import re
 from .content import Regex
 from .compose import Set, Seq
-from .repeat import Rep
+from .repeat import Rep, mulseq
 
 # ------------------------------------------------------------------------
 
@@ -21,6 +21,14 @@ def Few(tok,sep=None):
 
 def Many(tok,sep=None):
     return Rep(tok,'2+',sep)
+
+def Odd(tok,sep=None,start=1):
+    return Rep(tok,mulseq(start,2),sep)
+
+def Even(tok,sep=None,start=2):
+    return Rep(tok,mulseq(start,2),sep)
+
+# ------------------------------------------------------------------------
 
 def Xor(*args):
     return Set( args, max=1 )

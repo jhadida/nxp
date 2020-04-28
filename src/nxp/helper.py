@@ -11,6 +11,7 @@ def make_cursor( c, r2l=False ):
     if isinstance(c,Cursor):
         return c 
     elif isinstance(c,str):
+        assert len(c) > 0, ValueError('Cannot create a cursor from empty string.')
         return ListBuffer( c.splitlines(True), r2l ).cursor()
     else:
         raise TypeError(f'Unexpected type: {type(c)}')
@@ -25,7 +26,7 @@ def findall( tok, text, r2l=False ):
     return tok.findall(make_cursor(text,r2l))
 
 def finditer( tok, text, r2l=False ):
-    return tok.finditer(make_cursor(text,r2l))
+    yield from tok.finditer(make_cursor(text,r2l))
 
 # ------------------------------------------------------------------------
 # PARSER
@@ -105,7 +106,7 @@ def make_scope( name, sub, pfx='', out=None ):
 def make_parser(p):
     """
     Create a Parser object from input language definition. If input is 
-    already a Parser, it is forwarded to output without alteration.
+    already a Parser, it is reset before being returned.
 
     Language definition should be a dictionary with field "main", and 
     may contain additional fields. See make_scope above for more details

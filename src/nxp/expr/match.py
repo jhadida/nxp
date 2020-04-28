@@ -22,6 +22,10 @@ class TMatch:
     def pattern(self): 
         return str(self.tok) if self.tok else None
 
+    @property
+    def name(self):
+        return self.tok.name
+
     def isvalid(self):
         return self.end >= self.beg
     def isempty(self):

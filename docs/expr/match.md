@@ -1,20 +1,20 @@
 
 # Matching
 
-In the [introduction](expr/intro), we presented two different types of tokens (contents and composition), and talked about how multiplicity is different from multiple distinct matches (tl;dr: contiguous matches are grouped under a single `TMatch` object). Here we expand on practical explanations of matching in NXP, and working with the output.
+In the [introduction](expr/intro), we presented two different types of tokens (contents and composition), and the four classes `Regex, Set, Seq, Rep` which are the building blocks of expressions in NXP. Here we expand on practical explanations of matching in NXP, and working with the output.
 
 ## Functions
 
 All `Token` objects implement the following methods:
 ```
 tok.match( cursor )         must match from the current position
-tok.find( cursor )          advance cursor until a match is found
-tok.findall( cursor )       advance cursor until the end of the text
+tok.find( cursor )          advance cursor until a match is found or EOL
+tok.findall( cursor )       advance cursor until EOL and find all matches
 tok.finditer( cursor )      generator implementation of findall
 ```
 
-Note that these methods expect a `Cursor` object in input (not text), and that they may modify its position. 
-Cursors can be created from a string using `nxp.make_cursor(text)`, but to make this even easier, the following top-level functions are provided for convenience ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/helper.py)):
+Notice that these methods expect a `Cursor` object in input (not text), and that they may modify its position. 
+Cursors can be created from a string using `nxp.make_cursor(text)`, but to make this even easier, the following top-level functions are also provided for convenience ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/helper.py)):
 ```
 nxp.match( token, text )     -> TMatch/MatchError
 nxp.find( token, text )      -> TMatch/None
@@ -26,30 +26,23 @@ nxp.finditer( token, text )  -> generator( TMatch )
 
 ## Output
 
-The outputs of the previous methods are (lists of) `TMatch` objects, each of which may contain multiple `TOccur` items (related to the multiplicity of the `Token`). In turn, each `TOccur` object stores information about the location and contents of the occurrence:
+The outputs of the previous methods are (lists of) `TMatch` objects, each corresponding to a single match, and storing the following properties:
 ```
-occur.beg       postition where the occurrence begins
-occur.end               "           "          ends
-occur.text      the raw text between these positions
-occur.data      additional data depending on the Token type
+match.tok       reference to the token that was matched
+match.beg       postition where the match begins
+match.end               "           "     ends
+match.text      the raw text between these positions
+match.data      additional data depending on the Token type
 ```
-The positions saved within each occurrence are relative to the underlying `Buffer` object used by the input cursor. However, in order to remain lightweight, no additional information about the surrounding text is saved. 
+The positions saved within each match are relative to the underlying `Buffer` object used by the input cursor. However, in order to remain lightweight, no additional information about the surrounding text is saved. 
 
-In order to access each occurrence of the pattern, `TMatch` objects implement a list interface:
-```
-len(match)                  number of occurrences
-match[k]                    access each occurrence by index
-for occur in match: ...     iterate over occurrences (type TOccur)
-```
+Note that if the token matched is a [repetition](expr/intro?id=repetition), then the individual matches are stored in `match.data`, as a list of nested `TMatch` objects. Similarly, composition tokens `Set` and `Seq` also store a list in `match.data`, but `Regex` tokens store a [regex match](https://docs.python.org/3/library/re.html#match-objects) instead, from the Python reference library.
 
 In order to show information about a particular match, you can simply `print` the corresponding object. The string representation of a match is formatted as follows:
 ```
-[0] pos_begin - pos_end text_matched
-[1] pos_begin - pos_end text_matched
-...
+pos_begin - pos_end text_matched
 ```
 where:
-- each line corresponds to a different occurence (they should be contiguous);
 - the begin/end positions are formatted as `(line,col)` (starting at 0, not 1);
 - the text matched corresponds to the raw text between these positions.
 
@@ -57,4 +50,4 @@ Finally, because it is sometimes useful to place each match within the surroundi
 ```
 print( match.insitu(cursor.buffer) )
 ```
-which shows the surrounding text with the match underlined with dashes.
+which shows the surrounding text with the match underlined with dashes (see the [examples](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb)).

@@ -18,6 +18,7 @@ class mulrange:
     """
     Convert integer range to tuple generator.
     """
+    __slots__ = ('range')
     def __init__(self,mul):
         assert isinstance(mul,range), TypeError(f'Unexpected type: {type(mul)}')
         self.range = mul
@@ -31,7 +32,31 @@ class mulrange:
         return self.range.__getitem__(key)
     def __iter__(self):
         for m in self.range:
-            yield (m,m)
+            yield m,m
+
+class mulseq:
+    """
+    Infinite sequence as multiplicity
+    """
+    __slots__ = ('value','step')
+    def __init__(self,start=1,step=1):
+        assert isinstance(start,int), TypeError(f'Bad start type: {type(start)}')
+        assert isinstance(step,int), TypeError(f'Bad step type: {type(step)}')
+        assert start >= 0, ValueError(f'Start should be non-negative: {start}')
+        assert step > 0, ValueError(f'Step should be positive: {step}')
+        
+        self.value = start 
+        self.step = step
+    def __str__(self):
+        return f'V[k] = {self.step}k + {self.value}'
+    def __repr__(self):
+        return str((self.value,self.step))
+    def __getitem__(self,k):
+        return self.step*k + self.value 
+    def __iter__(self):
+        while True:
+            yield self.value, self.value
+            self.value += self.step
 
 def mulparse(mul):
     """
