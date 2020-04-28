@@ -1,11 +1,7 @@
 
 # Expressions
 
-The building blocks of expressions in NXP are `Token` objects ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/base.py)). 
-As a user, you are unlikely to interact with them directly, but it is useful to understand a couple of things about them:
-
-- Each token is either about **contents** (text pattern itself) or **composition** (structure of a given pattern).
-- Each token has its own **multiplicity**.
+The building blocks of expressions in NXP are `Token` objects ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/base.py)), and although you may only interact with derived classes in practice (each with their own specific properties), it is useful to understand that there are two kinds of tokens: either about **contents** (the text pattern itself) or **composition** (the structure of the pattern).
 
 For practical use, you can find a notebook with commented examples in [`examples/expressions.ipynb`](https://github.com/jhadida/nxp/blob/master/examples/expressions.ipynb).
 
@@ -20,7 +16,7 @@ They _can_ be used to define more complicated patterns (with captures, self-refe
 The next sections show how to assemble contents tokens into sequences; sets with optional members; and how to deal with repetitions. 
 
 For now, let's talk about contents. 
-The base class is called `Regex` ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/impl.py)), and is used like this:
+The base class is called `Regex` ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/expr/content.py)), and is used like this:
 ```py
 from nxp import Regex
 r = Regex( r'-?\d+' )  # match (signed) integer numbers
@@ -30,8 +26,8 @@ NXP also defines many useful aliases, which you might want to use in your code f
 ```
 Lit('Foo')      string literal (case sensitive)
 Chars('a-z')    characters in any order
-White()         whitespace characters
 Word()          letters, digits and underscore
+Bool()          True or False
 NumInt()        integer number
 NumFloat()      floating-point number
 NumHex()        hexadecimal number
@@ -39,10 +35,9 @@ Num()           any of the above types of number
 SqString()      single-quoted string
 DqString()      double-quoted string
 String()        either type of string
-XML()           xml tags
 Link()          hyperlink (protocol required)
 Email()         e-mail addresses
-Fenced(...)     bracket/quote/etc. -delimited contents
+Fenced(...)     delimited contents (bracket/quote/etc.)
 ```
 
 > **Note:** these aliases are **NOT** intended for validation purposes.
@@ -70,8 +65,8 @@ a ^ b ^ c = Xor( [a,b,c] )      One and only one required
 a & b & c = All( [a,b,c] )      All required, in any order
 ```
 
-`Set` objects match one or more tokens from the input list, in any order. 
-Note that the arguments `min` and `max` refer to **unique** matches within the list: if `min == 2` then two **distinct** items have to match the cursor sequentially, which is _different_ from allowing repeated matching via the multiplicity (cf. next section).
+`Set` objects match one or more tokens from the input list, in any order. Note that the arguments `min` and `max` refer to **unique** matches within the list: if `min == 2` then two **distinct** items have to match the cursor _sequentially_. This is analogous to a scenario such as "pick between 2 and 5 objects amongst 13 without replacement".
+For the same token to be matched several times, see the [next section](intro?id=repetition).
 
 ```
 Seq( [TokenList], skip=None, maxskip=None )

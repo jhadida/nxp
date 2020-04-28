@@ -4,9 +4,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("version.txt") as fh:
+    version = fh.read().strip()
+
 setuptools.setup(
     name="nxp",
-    version="0.2.1",
+    version=version,
     author="Jonathan Hadida",
     author_email="jonathan.hadida@unknown.invalid",
     description="Natural eXpression Parsing — A Python 3 parsing library.",

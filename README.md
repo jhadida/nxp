@@ -1,7 +1,7 @@
 
-<a href="https://choosealicense.com/licenses/mpl-2.0/"><img src="assets/license.svg" alt="License: MPLv2" align="middle" style="margin: 0 20px"></a>
-<a href="https://pypi.org/project/nxp/"><img src="assets/pypi.svg" alt="PyPI: nxp" align="middle" style="margin: 0 20px"></a>
-<a href="https://jhadida.github.io/nxp/"><img src="assets/docs.svg" alt="Documentation" align="middle" style="margin: 0 20px"></a>
+<a href="https://choosealicense.com/licenses/mpl-2.0/"><img src="assets/license.svg" alt="License: MPLv2" align="middle" style="margin:0 20px;"></a>
+<a href="https://pypi.org/project/nxp/"><img src="assets/pypi.svg" alt="PyPI: nxp" align="middle" style="margin:0 20px;"></a>
+<a href="https://jhadida.github.io/nxp/"><img src="assets/docs.svg" alt="Documentation" align="middle" style="margin:0 20px;"></a>
 
 # NXP: Natural eXpression Parsing
 
@@ -13,9 +13,48 @@ It allows users to do two things:
 - Define and parse complex languages, with a simple dictionary!
 
 Is it really that simple? <br>
-Don't take my word for it; see for yourself with the example below, and the notebooks in the `examples/` folder. :blush:
+Don't take my word for it; see for yourself with the examples below, and the notebooks in the `examples/` folder. :blush:
 
-## Example: LaTeX-like commands
+## Examples
+
+### Matching HTML tags
+
+This is a quick example to show how complex expressions are created in NXP, by combining Python objects.
+
+```py
+from nxp import Seq, String, Either, Any, make_cursor
+
+# property name, optionally assigned a value between quotes
+attr = Seq( [r'\s+(\w+)', Seq([ r'\s*=\s*', String() ])], skip=1 )
+
+# open/close tags, or self-closed tag
+tag = Either(
+    Seq( [r'<(\w+)', Any(attr), r'\s*/?>'] ), 
+    r'</(\w+)\s*>'
+)
+
+# find matches amongst the following tests
+cur = make_cursor(' '.join([
+    'Not <a><tag</a>',
+    '<input type="checkbox" value="42" checked>',
+    '<img src="foo/bar.jpg" />'
+]))
+
+for m in tag.findall(cur): print(m.insitu(cur.buffer))
+```
+output:
+```
+Not <a><tag</a> <inp
+    ---             
+Not <a><tag</a> <input type=
+           ----             
+ <a><tag</a> <input type="checkbox" value="42" checked> <img src="fo
+             ------------------------------------------             
+42" checked> <img src="foo/bar.jpg" />
+             -------------------------
+```
+
+### Parsing LaTeX-like commands
 
 This is a quick example to illustrate parsing with NXP. We want to parse (very simplified) LaTeX-like patterns `\command{ body }` in the file `foo.txt`:
 ```txt

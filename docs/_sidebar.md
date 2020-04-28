@@ -2,7 +2,7 @@
 * Getting started
 
   * [Overview](overview)
-  * [About](About)
+  * [About](about)
 
 * Expression
 

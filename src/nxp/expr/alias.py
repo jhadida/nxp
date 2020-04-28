@@ -55,7 +55,7 @@ def NumHex():
     return Regex( r'0[xX][0-9a-fA-F]+' )
 
 def Num():
-    return OneOf( NumFloat(), NumInt(), NumHex() )
+    return OneOf( NumHex(), NumFloat(), NumInt() )
 
 def Bool():
     return Either( Lit('True'), Lit('False') )
@@ -73,16 +73,19 @@ def Fenced( boundary, esc=True, empty=True ):
     else:
         L,R = boundary 
 
-    assert len(R)==1, ValueError('Right boundary should be a single char.')
+    # can only escape single chars
+    assert len(R)==1 or not esc, ValueError('Right boundary should be a single char.')
 
     L = re.escape(L)
     R = re.escape(R)
     mul = '*' if empty else '+'
 
-    if esc:
+    if esc: 
         r = f'{L}(((\\\\{R})|[^{R}]){mul}){R}' 
-    else:
+    elif len(R)==1: 
         r = f'{L}([^{R}]{mul}){R}' 
+    else: # less efficient
+        r = f'{L}(((?!{R}).){mul}){R}' 
 
     return Regex(r)
 
