@@ -25,11 +25,8 @@ Non-strict scopes simply move the cursor forward.
 
 Call the following:
 ```
-nxp.parse( lang, text )
+nxp.parsetext( lang, text )
 nxp.parsefile( lang, file )
-nxp.parselines( lang, lines )
 ```
 
 Alternatively, create parser manually with `nxp.make_parser()` (the previous methods take a parser in input instead of the language dictionary).
-
-<a href='hello wordl!'></a>

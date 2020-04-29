@@ -130,20 +130,20 @@ def make_parser(p):
     else:
         raise TypeError(f'Unexpected type: {type(p)}')
 
+def parsebuf( parser, buffer ):
+    return make_parser(parser).parse(buffer.cursor())
+
 def parsefile( parser, fpath, r2l=False ):
-    return make_parser(parser).parse(FileBuffer(fpath,r2l).cursor())
+    return parsebuf( parser, FileBuffer(fpath,r2l) )
 
-def parselines( parser, lines, r2l=False ):
-    return make_parser(parser).parse(ListBuffer(lines,r2l).cursor())
-
-def parse( parser, text, r2l=False ):
-    return parselines( parser, text.splitlines(True), r2l )
+def parsetext( parser, text, r2l=False ):
+    return parsebuf( parser, ListBuffer(text.splitlines(True),r2l) )
 
 # ------------------------------------------------------------------------
 # PROCESSING
 # ------------------------------------------------------------------------
 
-def process( parser, callback, buffer, first=(0,0), last=None, **kv ):
+def procbuf( parser, callback, buffer, first=(0,0), last=None, **kv ):
     """
     Parse input buffer, and invoke callback for each matched element.
 
@@ -169,11 +169,11 @@ def procfile( parser, callback, infile, r2l=False, **kv ):
         callback( transform, element )
     """
     buf = FileBuffer(infile,r2l)
-    return process( parser, callback, buf, **kv )
+    return procbuf( parser, callback, buf, **kv )
 
-def proctxt( parser, callback, text, r2l=False, **kv ):
+def proctext( parser, callback, text, r2l=False, **kv ):
     """
     Same as above, but process input text.
     """
     buf = ListBuffer(text.splitlines(True),r2l)
-    return process( parser, callback, buf, **kv )
+    return procbuf( parser, callback, buf, **kv )

@@ -98,18 +98,18 @@ class _Buffer:
     # ----------  =====  ----------
     # Display
 
+    def _bounds(self,w,c1,c2,L):
+        if w == 0:
+            return 0,L
+        elif w < 0:
+            return 0,min(c2-w,L)
+        else:
+            return max(0,c1-w),min(c2+w,L)
+
     def show_around(self,pos,w=13):
         lnum,c = pos 
         L = self._line[lnum]
-
-        if w == 0:
-            b,e = 0,len(L)
-        elif w < 0:
-            b = 0
-            e = min(c-w,len(L))
-        else:
-            b = max(0,c-w)
-            e = min(c+w,len(L))
+        b,e = self._bounds(w,c,c,len(L))
         
         s = ' ' if b==e else L[b:e]
         x = list(' ' * len(s))
@@ -121,15 +121,7 @@ class _Buffer:
         l2,c2 = pos2 
         assert l1==l2, NotImplementedError('Multiline version not implemented.')
         L = self._line[l1]
-
-        if w == 0:
-            b,e = 0,len(L)
-        elif w < 0:
-            b = 0
-            e = min(c2-w,len(L))
-        else:
-            b = max(0,c1-w)
-            e = min(c2+w,len(L))
+        b,e = self._bounds(w,c1,c2,len(L))
 
         s = L[b:e]
         x = list(' ' * len(s))

@@ -71,9 +71,8 @@ which not only attempts to match the underlying expression, but may also:
 
 Several functions are provided for convenience in order to parse files, multline strings, or lists of strings:
 ```
-nxp.parse( parser, text )           -> RNode (root)
+nxp.parsetext( parser, text )       -> RNode (root)
 nxp.parsefile( parser, filepath )   ->      "
-nxp.parselines( parser, lines )     ->      "
 ```
 
 > More information about parsing in the [Parsing section](parse/intro).

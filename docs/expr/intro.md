@@ -79,6 +79,10 @@ The `skip` argument can be used to allow items to be skipped, and `maxskip` limi
 - Setting `skip=True`, or setting `maxskip` only, means that any item can be skipped;
 - If `maxskip` is unset, it defaults to the length of `skip`, or `NToken-1`, whichever is smallest.
 
+> **Notes:**
+> - Regex strings (i.e. `r'\w+'`) in token lists are automatically converted to `Regex` objects. 
+> - If you don't like this object-oriented frenzy (aka <i>the oof</i> :smile:), please know that you can still use the [parsing module](parse/intro) with plain old regular expressions all the way.
+
 ## Repetition
 
 The previous sections showed how to define contents tokens, and how to combine them together in order to create complex patterns to be matched. 
@@ -90,7 +94,7 @@ Multiplicities in NXP are represented by lists of tuples, or tuple-generating fu
 ```
 Each tuple corresponds to an **interval of validity** (bounds are _inclusive_) for the number of repetitions, with the constraint `U[i] < L[i+1]`, such that no two intervals overlap.
 
-In practice, you can use the much simpler command `Rep( token, mul )`, where `mul` is a string formatted as follows:
+In practice, use the command `Rep( token, mul )` to repeat a token, where `mul` is a formatted string:
 ```
 '1'     =>  [ (1,1) ]           exactly once
 '1-3'   =>  [ (1,3) ]           between 1 and 3
@@ -98,7 +102,7 @@ In practice, you can use the much simpler command `Rep( token, mul )`, where `mu
 '5-'    =>  [ (0,5) ]           between 0 and 5
 ```
 
-And there are also a few aliases defined for convenience:
+There are also a few aliases defined for convenience:
 ```
 Opt(tok)    = Rep( tok, '1-' )
 Any(tok)    = Rep( tok, '0+' )

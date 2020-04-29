@@ -297,7 +297,7 @@ class md_list:
 # ------------------------------------------------------------------------
 # 2.3.  Compiler implementation
 #
-#       Parsing and compilation rely on nxp.process, which requires 
+#       Parsing and compilation rely on nxp.procbuf, which requires 
 #       a callback function to process each node / rule-match returned 
 #       by the parser.
 # ------------------------------------------------------------------------
@@ -316,7 +316,7 @@ class MarkdownCompiler:
 
     def process( self, buf, par=True ):
         self._par = par 
-        return nxp.process( parser, self._callback, buf )
+        return nxp.procbuf( parser, self._callback, buf )
 
     # main callback function
     def _callback( self, tsf, elm ):
@@ -378,7 +378,7 @@ class MarkdownCompiler:
             self._par = any([ re.match( r'^\s*$', line ) for line in lines ])
             tsf.sub_lines( 
                 elm[0].beg[0], elm[-1].end[0], 
-                md_tag('blockquote',nxp.process( 
+                md_tag('blockquote',nxp.procbuf( 
                     parser, self._callback, 
                     nxp.ListBuffer(lines)
                 ),sep='\n')
@@ -490,7 +490,7 @@ def parse( infile ):
 
 def compile( infile, outfile=None, wrap=html_wrapper, **kv ):
     proc = lambda t: re.sub( r'\n{2,}', '\n', t )
-    tsf = MarkdownCompiler().process( nxp.FileBuffer(infile) )
+    tsf = MarkdownCompiler().procbuf( nxp.FileBuffer(infile) )
     txt = wrap( tsf.str(proc), **kv )
     if outfile: 
         with open(outfile,'w') as fh:

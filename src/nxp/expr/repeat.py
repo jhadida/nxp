@@ -72,7 +72,8 @@ def mulparse(mul):
     """
 
     # check utils
-    valid = lambda r: len(r)==2 and 0 <= r[0] <= r[1]
+    # TODO: could add "and r[0]*r[1] > 0" to forbid (0,0)?
+    valid = lambda r: len(r)==2 and 0 <= r[0] <= r[1] 
     overlap = lambda a,b: a[0] <= b[1] and b[0] <= a[1]
 
     # first, convert input to a list
