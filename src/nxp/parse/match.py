@@ -13,25 +13,16 @@ class RMatch:
         given repetition of the Token, which may be processed by
         callbacks in the Rule definition.
     """
-    __slots__ = ('rule','match','text','saved')
+    __slots__ = ('rule','match','text')
     
-    def __init__(self,r,m,t,s):
+    def __init__(self,r,m,t):
         self.rule = r 
         self.text = t
         self.match = m
-        self.saved = s
         logging.debug(f'[RMatch] Initialized (Rule#{r._id}).')
 
     def clone(self):
-        return RMatch(
-            self.rule, 
-            self.match,
-            self.text, 
-            self.saved  
-        )
-
-    def __getitem__(self,key): return self.saved[key]
-    def __contains__(self,key): return key in self.saved
+        return RMatch( self.rule, self.match, self.text )
 
     @property
     def tag(self): return self.rule.tag
@@ -43,6 +34,12 @@ class RMatch:
     def end(self): return self.match.end
     @property 
     def data(self): return self.match.data
+
+    # captures
+    def __getitem__(self,name):
+        return self.match[name]
+    def captures(self,append=True):
+        return self.match.captures(append)
 
 # ------------------------------------------------------------------------
 

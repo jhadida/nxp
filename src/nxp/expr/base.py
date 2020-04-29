@@ -33,43 +33,22 @@ class Token:
     def __call__(self,cur):
         return self.match(cur)
         
-    def match(self,cur,cap=None):
+    def match(self,cur):
         """
         Returns TMatch in case of successful match, 
         throws MatchError otherwise.
         """
-        m = self._match(cur,cap)
-        if self._name and cap is not None:
-            cap[self._name] = m
-        return m
-
-    def _match(self,cur,cap):
         raise NotImplementedError()
 
     # search
-    def find(self,cur):
+    def find(self,cur,multi=False):
         logging.debug('[Token] Find token at: L=%d, C=%d', *cur.pos)
-        while cur.isvalid():
-            try:
-                return self.match(cur)
-            except:
-                cur.nextchar()
-        return None
-
-    def findall(self,cur):
-        logging.debug('[Token] Find all tokens at: L=%d, C=%d', *cur.pos)
-        out = []
-        while cur.isvalid():
-            try:
-                out.append(self.match(cur))
-            except:
-                cur.nextchar()
-        return out
-
-    def finditer(self,cur):
-        logging.debug('[Token] Iterate find token at: L=%d, C=%d', *cur.pos)
-        while cur.isvalid():
+        end = 'eof' if multi else 'eol'
+        while not getattr(cur,end):
             try:
                 yield self.match(cur)
             except:
                 cur.nextchar()
+
+            if multi and cur.eol:
+                cur.nextline()

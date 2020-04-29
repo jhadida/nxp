@@ -8,18 +8,15 @@ In the [introduction](expr/intro), we presented two different types of tokens (c
 All `Token` objects implement the following methods:
 ```
 tok.match( cursor )         must match from the current position
-tok.find( cursor )          advance cursor until a match is found or EOL
-tok.findall( cursor )       advance cursor until EOL and find all matches
-tok.finditer( cursor )      generator implementation of findall
+tok.find( cursor )          advance cursor until EOL and yield matches if any
+tok.find( cursor, True )    advance cursor until EOF and yield matches if any
 ```
 
 Notice that these methods expect a `Cursor` object in input (not text), and that they may modify its position. 
 Cursors can be created from a string using `nxp.make_cursor(text)`, but to make this even easier, the following top-level functions are also provided for convenience ([source](https://github.com/jhadida/nxp/blob/master/src/nxp/helper.py)):
 ```
-nxp.match( token, text )     -> TMatch/MatchError
-nxp.find( token, text )      -> TMatch/None
-nxp.findall( token, text )   -> [ TMatch ]
-nxp.finditer( token, text )  -> generator( TMatch )
+nxp.match( token, text )        -> TMatch/MatchError
+nxp.find( token, text, multi )  -> generator( TMatch )
 ```
 
 > More info about the cursor object [here](ref/io?id=cursor-and-position).

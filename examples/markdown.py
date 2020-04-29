@@ -424,8 +424,9 @@ class MarkdownCompiler:
             return m.data[0]
 
     def _proc_ref(self,elm):
-        lab = elm['label'].data[1]
-        val = elm['value'].data
+        cap = elm.captures(False)
+        lab = cap['label'].data[1]
+        val = cap['value'].data
         if len(val) > 1:
             r = (self._proc_value(val[0]), self._proc_value(val[1]))
         else:
@@ -446,31 +447,33 @@ class MarkdownCompiler:
         return lst
 
     def _proc_img(self,elm):
-        alt = elm['alt'].data[1]
-        if 'imgvalue' in elm:
-            val = elm['imgvalue'].data
+        cap = elm.captures(False)
+        alt = cap['alt'].data[1]
+        if 'imgvalue' in cap:
+            val = cap['imgvalue'].data
             att = { 'alt': alt, 'src': self._proc_value(val[0]) }
             if len(val) > 1: att['title'] = self._proc_value(val[1])
             return stag('img',**att)
         else:
-            lab = elm['imglabel'].data[1]
+            lab = cap['imglabel'].data[1]
             return md_refimg( self, alt, lab )
 
     def _proc_url(self,elm):
         # body can be an image
-        body = elm['body'].data[0]
+        cap = elm.captures(False)
+        body = cap['body'].data[0]
         if isinstance(body.data,list):
             body = self._proc_img(elm)
         else:
             body = body.data[0]
 
-        if 'urlvalue' in elm:
-            val = elm['urlvalue'].data
+        if 'urlvalue' in cap:
+            val = cap['urlvalue'].data
             atr = { 'href': self._proc_value(val[0]) }
             if len(val) > 1: atr['title'] = self._proc_value(val[1])
             return itag('a',body,**atr)
         else:
-            lab = elm['urllabel'].data[1]
+            lab = cap['urllabel'].data[1]
             return md_refurl( self, body, lab )
 
 # ------------------------------------------------------------------------

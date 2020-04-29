@@ -151,7 +151,7 @@ class Rep(Token):
     def __str__(self):
         return f'#({self._tok})'
 
-    def _match(self,cur,cap):
+    def match(self,cur):
         out = TokenChain()
         pos = cur.pos
         chk = None
@@ -166,10 +166,10 @@ class Rep(Token):
                 try:
                     # match separator if at least one match exists
                     if self._sep and len(out) > 0:
-                        self._sep.match(cur,cap) 
+                        self._sep.match(cur) 
 
                     # match token
-                    out.append(self._tok.match(cur,cap))
+                    out.append(self._tok.match(cur))
                 except MatchError:
                     cur.pos = tmp # restore position before separator
                     break

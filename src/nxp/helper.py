@@ -16,17 +16,11 @@ def make_cursor( c, r2l=False ):
     else:
         raise TypeError(f'Unexpected type: {type(c)}')
 
-def match( tok, text, r2l=False, cap=None ):
-    return tok.match(make_cursor(text,r2l),cap)
+def match( tok, text, r2l=False ):
+    return tok.match(make_cursor(text,r2l))
 
-def find( tok, text, r2l=False ):
-    return tok.find(make_cursor(text,r2l))
-
-def findall( tok, text, r2l=False ):
-    return tok.findall(make_cursor(text,r2l))
-
-def finditer( tok, text, r2l=False ):
-    yield from tok.finditer(make_cursor(text,r2l))
+def find( tok, text, r2l=False, multi=False ):
+    yield from tok.find(make_cursor(text,r2l),multi)
 
 # ------------------------------------------------------------------------
 # PARSER

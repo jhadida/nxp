@@ -1,5 +1,6 @@
 
 import logging
+from collections import defaultdict
 
 # ------------------------------------------------------------------------
 
@@ -33,6 +34,33 @@ class TMatch:
 
     def __str__(self):
         return f'{self.beg} - {self.end} {self.text}'
+
+    # traversal and named matches
+    def __iter__(self):
+        yield self 
+        if isinstance(self.data,list):
+            for m in self.data:
+                yield from m
+    
+    def __getitem__(self,name):
+        out = []
+        for m in self:
+            if m.name == name:
+                out.append(m)
+        return out
+
+    def captures(self,append=True):
+        if append:
+            out = defaultdict(list)
+            for m in self:
+                if m.name is not None:
+                    out[m.name].append(m)
+        else:
+            out = dict()
+            for m in self:
+                if m.name is not None:
+                    out[m.name] = m
+        return out
         
     # pretty-print
     def insitu(self,buf,w=13):

@@ -69,7 +69,7 @@ class Set(_TokenList):
         assert val >= self._min, ValueError('max should be >= min')
         self._max = val
 
-    def _match(self,cur,cap):
+    def match(self,cur):
 
         # use token set for fast removal and iteration
         tok = TokenSet(self._tok)
@@ -86,7 +86,7 @@ class Set(_TokenList):
             # attempt to match a token
             for it in tok:
                 try:
-                    out.append(it.tok.match(cur,cap))
+                    out.append(it.tok.match(cur))
                     tok.remove(it) # remove token to match others
                     break
                 except MatchError:
@@ -137,7 +137,7 @@ class Seq(_TokenList):
     @property 
     def maxskip(self): return self._msk
 
-    def _match(self,cur,cap):
+    def match(self,cur):
         out = []
         pos = cur.pos # save initial position for reset
         skp = 0
@@ -145,7 +145,7 @@ class Seq(_TokenList):
         # iterate over tokens to be matched
         for k,tok in enumerate(self._tok):
             try: # match tokens in sequence
-                out.append(tok.match(cur,cap))
+                out.append(tok.match(cur))
             except MatchError:
                 skp += 1 # check number of skips and skip index
                 if skp > self._msk or k not in self._skp:

@@ -40,7 +40,7 @@ class Regex(Token):
     def __deepcopy__(self,memo):
         return Regex( self._pat )
 
-    def _match(self,cur,cap):
+    def match(self,cur):
         
         # attempt to match regex at current position
         p = cur.pos
