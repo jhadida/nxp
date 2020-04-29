@@ -33,25 +33,25 @@ tag = Either(
     r'</(\w+)\s*>'
 )
 
-# find matches amongst the following tests
-cur = make_cursor(' '.join([
-    'Not <a><tag</a>',
-    '<input type="checkbox" value="42" checked>',
-    '<img src="foo/bar.jpg" />'
-]))
+# create cursor and find matches
+cur = make_cursor('''
+Not <a><tag</a>
+<input type="checkbox" value="42" checked>
+<img src="foo/bar.jpg" />
+''')
 
-for m in tag.findall(cur): print(m.insitu(cur.buffer))
+for m in tag.find(cur,multi=True): print(m.insitu(cur.buffer))
 ```
 output:
 ```
-Not <a><tag</a> <inp
-    ---             
-Not <a><tag</a> <input type=
-           ----             
- <a><tag</a> <input type="checkbox" value="42" checked> <img src="fo
-             ------------------------------------------             
-42" checked> <img src="foo/bar.jpg" />
-             -------------------------
+Not <a><tag</a>
+    ---        
+Not <a><tag</a>
+           ----
+<input type="checkbox" value="42" checked>
+------------------------------------------
+<img src="foo/bar.jpg" />
+-------------------------
 ```
 
 ### Parsing LaTeX-like commands
