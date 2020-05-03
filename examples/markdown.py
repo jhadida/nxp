@@ -97,9 +97,9 @@ def validIndent(c,x,m):
 def checkIndent(c,x): 
     return len(c.line.indent) >= x.get('indent')
 def saveTag(c,x,m):
-    x.set('tag',m.data[0].data[1])
+    x.set('tag',m[0][1])
 def validTag(c,x,m):
-    return m.data[1] == x.get('tag')
+    return m[1] == x.get('tag')
 def textEOF(c,x,m):
     if c.eof: x.save(m)
 
@@ -342,13 +342,13 @@ class MarkdownCompiler:
             elif tag == 'url': 
                 tsf.sub( beg, end, self._proc_url(elm) )
             elif tag == 'boldit': 
-                tsf.sub( beg, end, itag('em',itag('strong',elm.data[1])) )
+                tsf.sub( beg, end, itag('em',itag('strong',elm[1])) )
             elif tag == 'bold': 
-                tsf.sub( beg, end, itag('strong',elm.data[1]) )
+                tsf.sub( beg, end, itag('strong',elm[1]) )
             elif tag == 'emph':
-                tsf.sub( beg, end, itag('em',elm.data[1]) )
+                tsf.sub( beg, end, itag('em',elm[1]) )
             elif tag == 'code': # inline code
-                tsf.sub( beg, end, itag('code',elm.data[1]) )
+                tsf.sub( beg, end, itag('code',elm[1]) )
             elif tag == 'math': # inline math
                 tsf.protect( beg, end )
             elif tag == 'html': # self-closed HTML tag
@@ -387,7 +387,7 @@ class MarkdownCompiler:
 
         elif elm.name == 'codeblock':
             assert len(elm)==2, LengthError(elm)
-            lang = elm[0].data[1]
+            lang = elm[0][1]
             attr = {'lang': lang} if lang else {}
             tsf.sub_lines( 
                 elm[0].beg[0], elm[1].end[0], 
@@ -416,16 +416,15 @@ class MarkdownCompiler:
     # ----------  =====  ----------
     
     def _proc_value(self,m):
-        m = m.data[0] # switch string/regex
-        if isinstance(m.data,list): 
-            # dq/sq string > group between quotes
-            return m.data[0].data[1]
-        else: # raw text
-            return m.data[0]
+        m = m[0] # switch string/regex
+        if m.isregex(): # raw text
+            return m[0]
+        else: # dq/sq string > group between quotes
+            return m[0][1]
 
     def _proc_ref(self,elm):
-        cap = elm.captures(False)
-        lab = cap['label'].data[1]
+        cap = elm.captures(True)
+        lab = cap['label'][1]
         val = cap['value'].data
         if len(val) > 1:
             r = (self._proc_value(val[0]), self._proc_value(val[1]))
@@ -447,33 +446,33 @@ class MarkdownCompiler:
         return lst
 
     def _proc_img(self,elm):
-        cap = elm.captures(False)
-        alt = cap['alt'].data[1]
+        cap = elm.captures(True)
+        alt = cap['alt'][1]
         if 'imgvalue' in cap:
             val = cap['imgvalue'].data
-            att = { 'alt': alt, 'src': self._proc_value(val[0]) }
-            if len(val) > 1: att['title'] = self._proc_value(val[1])
-            return stag('img',**att)
+            attr = { 'alt': alt, 'src': self._proc_value(val[0]) }
+            if len(val) > 1: attr['title'] = self._proc_value(val[1])
+            return stag('img',**attr)
         else:
-            lab = cap['imglabel'].data[1]
+            lab = cap['imglabel'][1]
             return md_refimg( self, alt, lab )
 
     def _proc_url(self,elm):
         # body can be an image
-        cap = elm.captures(False)
-        body = cap['body'].data[0]
-        if isinstance(body.data,list):
-            body = self._proc_img(elm)
+        cap = elm.captures(True)
+        body = cap['body'][0]
+        if body.isregex():
+            body = body[0]
         else:
-            body = body.data[0]
+            body = self._proc_img(elm)
 
         if 'urlvalue' in cap:
             val = cap['urlvalue'].data
-            atr = { 'href': self._proc_value(val[0]) }
-            if len(val) > 1: atr['title'] = self._proc_value(val[1])
-            return itag('a',body,**atr)
+            attr = { 'href': self._proc_value(val[0]) }
+            if len(val) > 1: attr['title'] = self._proc_value(val[1])
+            return itag('a',body,**attr)
         else:
-            lab = cap['urllabel'].data[1]
+            lab = cap['urllabel'][1]
             return md_refurl( self, body, lab )
 
 # ------------------------------------------------------------------------
@@ -490,7 +489,7 @@ def parse( infile ):
 
 def compile( infile, outfile=None, wrap=html_wrapper, **kv ):
     proc = lambda t: re.sub( r'\n{2,}', '\n', t )
-    tsf = MarkdownCompiler().procbuf( nxp.FileBuffer(infile) )
+    tsf = MarkdownCompiler().process( nxp.FileBuffer(infile) )
     txt = wrap( tsf.str(proc), **kv )
     if outfile: 
         with open(outfile,'w') as fh:

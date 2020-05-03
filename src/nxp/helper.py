@@ -79,6 +79,7 @@ def make_scope( name, sub, pfx='', out=None ):
         out[key] = sub
         return out
     elif isinstance(sub,dict):
+        assert isinstance(sub['main'],list), TypeError(f'main (sub)scope should be a list (prefix: {pfx}).')
         out[key] = Scope([ make_rule(r) for r in sub['main'] ])
     else:
         raise TypeError(f'Unexpected type: {type(sub)}')

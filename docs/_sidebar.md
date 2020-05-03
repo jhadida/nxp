@@ -2,6 +2,7 @@
 * Getting started
 
   * [Overview](overview)
+  * [Tutorials](tutorial)
   * [About](about)
 
 * Expression
@@ -13,8 +14,9 @@
 * Parsing
 
   * [Intro](parse/intro)
-  * [Rules](parse/rule)
+  * [Rule](parse/rule)
   * [Language](parse/lang)
+  * [Processing](parse/proc)
   * [Advanced](parse/adv)
 
 * Development

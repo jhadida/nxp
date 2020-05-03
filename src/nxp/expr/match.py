@@ -31,35 +31,43 @@ class TMatch:
         return self.end >= self.beg
     def isempty(self):
         return self.beg == self.end
+    def isregex(self):
+        return not isinstance(self.data,list)
 
     def __str__(self):
         return f'{self.beg} - {self.end} {self.text}'
 
+    # match data
+    def __getitem__(self,k):
+        return self.data[k]
+    def __len__(self):
+        return self.data.lastindex if self.isregex() else len(self.data)
+
     # traversal and named matches
-    def __iter__(self):
+    def traverse(self):
         yield self 
         if isinstance(self.data,list):
             for m in self.data:
-                yield from m
+                yield from m.traverse()
     
-    def __getitem__(self,name):
+    def __call__(self,name):
         out = []
-        for m in self:
+        for m in self.traverse():
             if m.name == name:
                 out.append(m)
         return out
 
-    def captures(self,append=True):
-        if append:
-            out = defaultdict(list)
-            for m in self:
-                if m.name is not None:
-                    out[m.name].append(m)
-        else:
+    def captures(self,overwrite=False):
+        if overwrite:
             out = dict()
-            for m in self:
+            for m in self.traverse():
                 if m.name is not None:
                     out[m.name] = m
+        else:
+            out = defaultdict(list)
+            for m in self.traverse():
+                if m.name is not None:
+                    out[m.name].append(m)
         return out
         
     # pretty-print

@@ -35,11 +35,17 @@ class RMatch:
     @property 
     def data(self): return self.match.data
 
+    # match data
+    def __len__(self):
+        return len(self.match)
+    def __getitem__(self,k):
+        return self.match[k]
+
     # captures
-    def __getitem__(self,name):
+    def __call__(self,name):
         return self.match[name]
-    def captures(self,append=True):
-        return self.match.captures(append)
+    def captures(self,overwrite=False):
+        return self.match.captures(overwrite)
 
 # ------------------------------------------------------------------------
 
@@ -83,6 +89,8 @@ class RNode:
     def nvars(self): return len(self.vars)
     @property 
     def depth(self): return self._depth
+    @property
+    def parent(self): return self._parent
 
     def is_root(self): return self._parent is None
     def is_leaf(self): return self.nchild == 0

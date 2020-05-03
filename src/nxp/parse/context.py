@@ -50,11 +50,11 @@ class Context:
     def stacktrace(self): return self._node.stacktrace()
 
     # proxy to event hub
-    def publish( self, name, *args, **kwargs ):
-        self._event.publish(name,self,*args,**kwargs)
+    def publish( self, _chan, *args, **kwargs ):
+        self._event.publish(_chan,self,*args,**kwargs)
         return self
-    def subscribe( self, name, fun ):
-        return self._event.subscribe(name,fun)
+    def subscribe( self, chan, fun ):
+        return self._event.subscribe(chan,fun)
 
     # main functions
     def log( self, msg, level=None ): # TODO: better handling of logging

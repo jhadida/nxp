@@ -9,7 +9,7 @@ Seq( [tok1, Opt(tok2), tok3] )
 Seq( [tok1, tok2, tok3], skip=1 )   # equivalent, but more efficient
 ```
 
-In a token set `Set`, although marking a token as optional is possible, it should be considered a logical error. Indeed, failure to match an optional token would still constribute to the cardinality constraints specified with `min/max`, and would therefore render such constraints meaningless.
+In a token set `Set`, although marking a token as optional is possible, it should not be done. This is because failure to match an optional token would still constribute to the cardinality constraints specified with `min/max`, and would therefore render such constraints meaningless.
 
 ## Token search
 

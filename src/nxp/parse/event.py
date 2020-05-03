@@ -65,29 +65,29 @@ class Hub:
         self.create( '.create' )
         self.create( '.delete' )
 
-    def create(self, name):
-        if not self.exists(name):
-            self._chan[name] = Channel(name)
-            self.publish( '.create', name )
+    def create(self,c):
+        if not self.exists(c):
+            self._chan[c] = Channel(c)
+            self.publish( '.create', c )
 
-    def delete(self, name):
-        if self.exists(name):
-            self.publish( '.delete', name )
-            del self._chan[name]
+    def delete(self,c):
+        if self.exists(c):
+            self.publish( '.delete', c )
+            del self._chan[c]
 
-    def exists(self, name):
-        return name in self._chan
+    def exists(self,c):
+        return c in self._chan
 
-    def __getitem__(self, name):
-        return self._chan[name]
+    def __getitem__(self, c):
+        return self._chan[c]
     
-    def subscribe(self, name, fun):
-        self.create(name) # create on-the-fly if channel does not exist
-        return self._chan[name].subscribe(fun)
+    def subscribe(self,c,fun):
+        self.create(c) # create on-the-fly if channel does not exist
+        return self._chan[c].subscribe(fun)
 
-    def publish(self, name, *args, **kwargs):
-        self.create(name)
-        self._chan[name].publish(*args, **kwargs)
+    def publish(self, _c, *args, **kwargs):
+        self.create(_c)
+        self._chan[_c].publish(*args, **kwargs)
 
 # ------------------------------------------------------------------------
 

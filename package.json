@@ -1,0 +1,7 @@
+{
+    "name": "nxp",
+    "description": "Natural eXpression Parsing — A Python 3 parsing library.",
+    "author": "Jonathan Hadida",
+    "author_email": "jonathan.hadida@unknown.invalid",
+    "homepage": "https://github.com/jhadida/nxp"
+}

@@ -1,12 +1,12 @@
 
 # Advanced usage
 
-## Callback
+## Callback functions
 
 Custom callback functions.
 Variables can be saved at different levels.
 
-## Event
+## Working with events
 
 Multiple channels used during parsing:
 ```
@@ -15,10 +15,10 @@ save    fun(match)                  before adding
 open    fun(node)                   after transition
 close   fun(node)                   before transition
 swap    fun(node,target)            before reassign
-bol     fun()                       -
-eol     fun()                       before nextline
+bol     fun(pos)                    -
+eol     fun(pos)                    before nextline
 ```
 
-## Nodes
+## Language optimization
 
-Objects of type `RNode`. List interface. Pretty-printing.
+In each scope, define a rule early on to consume characters that cannot match any other rule.

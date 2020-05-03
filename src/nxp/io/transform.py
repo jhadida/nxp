@@ -35,22 +35,10 @@ class Transform:
     def __len__(self): return len(self._sub)
     def __iter__(self): return iter(self._sub)
     def __getitem__(self,key): return self._sub[key]
-
+    
     def check(self):
         for a,b in zip(self._sub,self._sub[1:]):
             assert a < b, RuntimeError('Bad substitution order.')
-
-    def restrict(self,beg,end,w=0):
-        self._check_range(beg,end)
-        if isinstance(w,int): w = (w,w)
-        bl,bc = beg 
-        el,ec = end 
-        self._beg = (bl,bc+w[0])
-        self._end = (el,ec-w[1])
-        return self
-
-    def clone(self):
-        return Transform( self._buf, self._beg, self._end )
 
     def str(self,proc=None):
         self.check()
@@ -82,15 +70,33 @@ class Transform:
 
         # concatenate all segments
         return ''.join(out)
-
+    
+    # ----------  =====  ----------
+    
     def _check_range(self,beg,end):
         assert self._beg <= beg <= end <= self._end, ValueError(f'Bad positions: {self._beg} <= {beg} <= {end} <= {self._end}')
     def _check_lines(self,lbeg,lend):
         assert self._beg[0] <= lbeg <= lend <= self._end[0], ValueError(f'Bad lines: {self._beg[0]} <= {lbeg} <= {lend} <= {self._end[0]}')
+    
+    # ----------  =====  ----------
+
+    def clone(self):
+        return Transform( self._buf, self._beg, self._end )
+
+    def restrict(self,beg,end,w=0):
+        self._check_range(beg,end)
+        if isinstance(w,int): w = (w,w)
+        bl,bc = beg 
+        el,ec = end 
+        self._beg = (bl,bc+w[0])
+        self._end = (el,ec-w[1])
+        return self
 
     def restricted(self,beg,end,w=0):
         return self.clone().restrict(beg,end,w)
-
+    
+    # ----------  =====  ----------
+    
     def include(self,beg,end,fpath,r2l=False):
         self._check_range(beg,end)
         tsf = Transform(FileBuffer( fpath, r2l ))

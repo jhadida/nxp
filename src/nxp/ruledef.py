@@ -165,7 +165,7 @@ def _rule_arg(arg):
     for a in arg[1:]:
         if isinstance(a,str): a=(a,)
         assert isinstance(a,tuple), TypeError(f'Rule arguments should be tuples or strings, but found "{type(a)}" instead.')
-        assert isinstance(a[0],str), TypeError(f'Rule argument should beg with a command string, but found "{type(a[0])}" instead.')
+        assert isinstance(a[0],str), TypeError(f'Rule argument should begin with a command string, but found "{type(a[0])}" instead.')
         try:
             _argmap[ a[0] ]( out, *a[1:] )
         except KeyError:

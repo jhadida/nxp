@@ -14,14 +14,18 @@ class _Fuse:
         self._pos = pos
         self._num = 0
 
+    @property
+    def count(self):
+        return self._num
+
     def update(self,pos):
         if pos == self._pos:
             self._num += 1
-            assert self._num < self.MAX_ATTEMPTS, \
-                RuntimeError('Cursor has remained in the same position for too long; parsing aborted.')
         else:
             self._pos = pos 
             self._num = 0
+
+        return self._num < self.MAX_ATTEMPTS
 
 # ------------------------------------------------------------------------
 
@@ -61,11 +65,11 @@ class Parser:
         return self
 
     # proxy to event hub
-    def publish( self, name, *args, **kwargs ):
-        self._evt.publish(name,self,*args,**kwargs)
+    def publish( self, _chan, *args, **kwargs ):
+        self._evt.publish(_chan,self,*args,**kwargs)
         return self
-    def subscribe( self, name, fun ):
-        return self._evt.subscribe(name,fun)
+    def subscribe( self, chan, fun ):
+        return self._evt.subscribe(chan,fun)
 
     # parsing
     def parse(self,cur):
@@ -84,15 +88,14 @@ class Parser:
                 self._ctx.publish('eol',pos=cur.pos)
                 cur.nextline()
             
-            fuse.update(cur.pos)
+            if not fuse.update(cur.pos):
+                cur.error( f'Abort: cursor has remained at this position for too long (counter: {fuse.count}).' )
 
         # check finish context
         scope = self._ctx.scopename
         finish = self.finish
         assert finish is None or scope == finish, \
             RuntimeError(f'Parsing should end in scope "{finish}", but ended in scope "{scope}" instead.')
-
-        
         
         return self._ctx.root
  

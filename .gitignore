@@ -22,15 +22,16 @@ temp*
 *.class
 *.jar
 *.pyc
+*.mexmac*
+*.mexa*
 
-## Application-specific
+## Other
 node_modules
-__pycache__
 .vscode
+
+## Python files
+__pycache__
 .ipynb*
-
-
-## Distribution
 .Python
 build
 dist
