@@ -31,14 +31,16 @@ match = next(tok.find( cursor ))
 
 ## Match data
 
-The property `match.data` of `TMatch` object will often contain a list of `TMatch` objects, corresponding to nested matches. The only exception is with `Regex` tokens, which assign a [regex match object](https://docs.python.org/3/library/re.html#match-objects) to this property.
+The property `match.data` of `TMatch` object will often contain a list of `TMatch` objects, corresponding to nested matches. The only exception is with `Regex` tokens, in which case `match.data` is a [regex match object](https://docs.python.org/3/library/re.html#match-objects), from the Python reference library.
 
-Nested matches can be traversed (in a depth-first manner) by iterating a match:
-```py
-for nested_match in match: # do something
-```
+Match data access:
 
-Both [capture-related](expr/match?id=captures) methods make use of such traversal, and in particular, note that they have the same complexity. So if you need to access several named captures, use `match.captures()` once instead of repeatedly calling `match[name]`.
+- if the underlying token is a `Regex` object (use `match.isregex()` to check), then they return captured groups, and the number of groups, respectively;
+- otherwise for all other types of tokens, they return `match.data[k]` (which is a `TMatch` object), and `len(match.data)`.
+
+To-do: mphasize difference between match data access, and named captures.
+
+Both [capture-related](expr/match?id=captures) methods use depth-first traversal across nested match objects, so they have the same complexity. Hence, if you need to access several named captures, use `match.captures()` once instead of repeatedly calling `match[name]`.
 
 ## Token arithmetic
 

@@ -1,7 +1,8 @@
 
-<a href="https://choosealicense.com/licenses/eupl-1.2/"><img src="https://img.shields.io/badge/License-EUPL--1.2-orange" alt="License: EUPL-1.2" align="middle" style="margin:0 20px;"></a>
-<a href="https://pypi.org/project/nxp/"><img src="https://img.shields.io/badge/PyPI-nxp-blue" alt="PyPI: nxp" align="middle" style="margin:0 20px;"></a>
-<a href="https://jhadida.github.io/nxp/"><img src="https://img.shields.io/badge/Docs-https%3A%2F%2Fjhadida.github.io%2Fnxp%2F-green" alt="Documentation" align="middle" style="margin:0 20px;"></a>
+<a href="https://choosealicense.com/licenses/eupl-1.2/" style="display:inline-block; padding:10px 20px;"><img src="https://img.shields.io/badge/License-EUPL--1.2-orange" alt="License: EUPL-1.2" /></a>
+<a href="https://pypi.org/project/nxp/" style="display:inline-block; padding:10px 20px;"><img src="https://img.shields.io/badge/PyPI-nxp-blue" alt="PyPI: nxp" /></a>
+<img src="https://img.shields.io/pypi/dm/nxp?color=purple" alt="PyPI: installs" style="display:inline-block; padding:10px 20px;" />
+<a href="https://jhadida.github.io/nxp/" style="display:inline-block; padding:10px 20px;"><img src="https://img.shields.io/badge/Docs-https%3A%2F%2Fjhadida.github.io%2Fnxp%2F-green" alt="Documentation" /></a>
 
 # NXP: Natural eXpression Parsing
 

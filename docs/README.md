@@ -22,6 +22,7 @@ python3 -m pip install --user --upgrade nxp
 ```
 
 > **Links**
+>
 > - [GitHub repository](https://github.com/jhadida/nxp)
 > - [Examples (notebooks)](https://github.com/jhadida/nxp/tree/master/examples)
 > - [PIP package](https://pypi.org/project/nxp/)

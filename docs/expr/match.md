@@ -82,3 +82,9 @@ When matching a complex expression containing the previous token, the output mat
 
 - all instances of a particular named capture, using `match(name)` (returns a list);
 - all named captures within the match, using `match.captures()` (returns a dict of lists).
+
+> **WARNING:** this is <i>different</i> from [captured groups](https://docs.python.org/3/library/re.html#re.Match.group) in Python regexes!
+>
+> Named captures in NXP are for the whole `Token` object (which may be contained within a larger expression), and can be accessed with `match(name)` or `match.captures()`.
+>
+> Group captures within regexes can <i>also</i> be used when defining `Regex` objects, but they are completely independent from NXP, and can be accessed with `match[k]` (group index) or `match[name]` (named group).
