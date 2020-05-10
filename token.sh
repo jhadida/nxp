@@ -50,7 +50,7 @@ case $Command in
         algo -d -in "$Target"
         ;;
     set|enc*)
-        algo -in "$1" -out "$Target"
+        echo "$1" | algo -out "$Target"
         ;;
     *)
         echoerr "Unknown command: $Command"
