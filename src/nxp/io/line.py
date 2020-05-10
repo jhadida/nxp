@@ -53,7 +53,9 @@ class Line:
     def offset(self): return self._off 
 
     # begin/end of text
+    @property
     def bot(self): return self._bot 
+    @property
     def eot(self): return self._eot
 
     # contents of segments

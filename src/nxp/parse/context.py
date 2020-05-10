@@ -20,6 +20,7 @@ class Context:
         self._reset(start)
 
         # create dedicated channels
+        event.create('reset')
         event.create('match')
         event.create('save')
         event.create('open')
@@ -32,6 +33,7 @@ class Context:
         self._node = RNode('main')
         self._hist = []
         self._last = None
+        self.publish('reset')
         self.open(start)
         return self
 
@@ -51,7 +53,7 @@ class Context:
 
     # proxy to event hub
     def publish( self, _chan, *args, **kwargs ):
-        self._event.publish(_chan,self,*args,**kwargs)
+        self._event.publish(_chan,*args,**kwargs)
         return self
     def subscribe( self, chan, fun ):
         return self._event.subscribe(chan,fun)

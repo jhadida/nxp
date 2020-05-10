@@ -47,7 +47,6 @@ class Parser:
     def finish(self): return self._chk[1]
 
     def reset(self):
-        self._evt = Hub()
         self._ctx._reset(self.start)
         return self
 
@@ -66,7 +65,7 @@ class Parser:
 
     # proxy to event hub
     def publish( self, _chan, *args, **kwargs ):
-        self._evt.publish(_chan,self,*args,**kwargs)
+        self._evt.publish(_chan,*args,**kwargs)
         return self
     def subscribe( self, chan, fun ):
         return self._evt.subscribe(chan,fun)

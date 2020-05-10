@@ -334,7 +334,7 @@ class MarkdownCompiler:
                 tsf.sub_line( beg[0], '<hr>' )
             elif tag == 'ref': # reference 
                 self._proc_ref(elm)
-                tsf.sub_line( beg[0], '' )
+                tsf.clear_line( beg[0] )
             elif tag == 'esc': # character escape
                 tsf.sub( beg, end, elm.text )
             elif tag == 'img': 

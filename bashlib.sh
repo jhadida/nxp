@@ -12,5 +12,5 @@ echoerr() {
 }
 
 require() {
-    [ -n "$(which "$1" 2>/dev/null)" ] || echoerr "Command missing: ${2:-1}"
+    [ -n "$(which "$1" 2>/dev/null)" ] || echoerr "Command missing: ${2:-$1}"
 }

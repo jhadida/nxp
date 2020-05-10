@@ -52,7 +52,7 @@ class Transform:
         for s in self._sub:
 
             # check that extents are compatible
-            if s.beg < pos: continue 
+            if s.beg < pos: raise RuntimeError('[bug] Overlapping substitutions.') 
             if s.beg >= self._end: break
 
             # process text and substitution
@@ -81,43 +81,117 @@ class Transform:
     # ----------  =====  ----------
 
     def clone(self):
+        """
+        Create a new instance of the current Transform (without copying substitutions).
+        """
         return Transform( self._buf, self._beg, self._end )
 
     def restrict(self,beg,end,w=0):
+        """
+        Restrict current Transform to specified range.
+        """
         self._check_range(beg,end)
         if isinstance(w,int): w = (w,w)
-        bl,bc = beg 
-        el,ec = end 
-        self._beg = (bl,bc+w[0])
-        self._end = (el,ec-w[1])
+        Lb,Cb = beg 
+        Le,Ce = end 
+        self._beg = (Lb,Cb+w[0])
+        self._end = (Le,Ce-w[1])
         return self
 
     def restricted(self,beg,end,w=0):
+        """
+        Create new Transform restricted to specified range.
+        """
         return self.clone().restrict(beg,end,w)
     
     # ----------  =====  ----------
     
     def include(self,beg,end,fpath,r2l=False):
+        """
+        Inject file contents within specified range.
+        If end is None, beg should be a line number.
+        """
         self._check_range(beg,end)
         tsf = Transform(FileBuffer( fpath, r2l ))
-        self.sub(beg,end,tsf)
+        if end is None:
+            self.sub_line(beg,tsf,gobble=True)
+        else:
+            self.sub(beg,end,tsf)
         return tsf
 
     def protect(self,beg,end):
-        return self.sub( beg, end, self._buf.between(beg,end) )
+        """
+        Prevent substitutions within specified range.
+        """
+        self.sub( beg, end, self._buf.between(beg,end) )
+        return self
 
     def sub(self,beg,end,sub):
+        """
+        Substitute text within sepcified range.
+        """
         self._check_range(beg,end)
-        s = Substitute(beg,end,sub)
-        self._sub.append(s)
-        return s 
+        self._sub.append(Substitute(beg,end,sub))
+        return self
 
-    def sub_line(self,lnum,sub):
-        return self.sub_lines(lnum,lnum,sub)
-
-    def sub_lines(self,lbeg,lend,sub):
+    def sub_line(self,lnum,sub,gobble=False):
+        """
+        Replace single line with given substitution.
+        """
+        return self.sub_lines(lnum,lnum,sub,gobble)
+    def sub_lines(self,lbeg,lend,sub,gobble=False):
+        """
+        Replace multiple lines with given substitution.
+        """
         self._check_lines(lbeg,lend)
         line = self._buf[lend]
         beg = (lbeg,0)
-        end = (lend,len(line))
+        if gobble and lend+1 < len(self._buf):
+            end = (lend+1,0)
+        else:
+            end = (lend,len(line))
         return self.sub(beg,end,sub)
+
+    def gobble(self,beg):
+        """
+        Consume whitespace until the next line.
+        """
+        L,C = beg 
+        line = self._buf[L]
+
+        if L+1 < len(self._buf):
+            end = (L+1,0)
+        else:
+            end = (L,len(line))
+
+        if line.eot <= C: 
+            self.sub(beg,end,'')
+
+        return self
+
+    def clear(self,beg,end):
+        """
+        Delete line if blank outside or specified range, 
+        otherwise simply delete range.
+        """
+        Lb,Cb = beg 
+        Le,Ce = end 
+
+        empty_before = self._buf[Lb].bot >= Cb
+        empty_after = self._buf[Le].eot <= Ce
+
+        if empty_before and empty_after:
+            return self.sub_lines(Lb,Le,'',gobble=True)
+        else:
+            return self.sub(beg,end,'')
+        
+    def clear_line(self,lnum):
+        """
+        Delete line regardless of contents.
+        """
+        return self.sub_line(lnum,'',gobble=True)
+    def clear_lines(self,lbeg,lend):
+        """
+        Delete lines regardless of contents.
+        """
+        return self.sub_lines(lbeg,lend,'',gobble=True)
